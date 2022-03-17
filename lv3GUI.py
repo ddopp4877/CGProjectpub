@@ -16,6 +16,9 @@ NavigationToolbar2Tk)
 
 if platform.system() == 'Linux':
     h.nrn_load_dll(os.path.join("modFiles/x86_64/.libs/libnrnmech.so"))
+else:
+    h.nrn_load_dll(os.path.join("modFiles","nrnmech.dll"))
+
 #hyperparameters:
 dt = 0.2
 tstop = 2550#ms

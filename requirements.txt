@@ -3,7 +3,6 @@ fonttools==4.30.0
 joblib==1.1.0
 kiwisolver==1.4.0
 matplotlib==3.5.0
-NEURON==8.0.2
 numpy==1.22.3
 packaging==21.3
 pandas==1.4.1

@@ -8,8 +8,11 @@ import matplotlib.pyplot as plt
 import pickle
 import sys
 import pandas as pd
+
 if platform.system() == 'Linux':
     h.nrn_load_dll(os.path.join("modFiles/x86_64/.libs/libnrnmech.so"))
+else:
+    h.nrn_load_dll(os.path.join("modFiles","nrnmech.dll"))
 h.load_file('stdrun.hoc') #so you can use run command
 
 if len(sys.argv) < 4:

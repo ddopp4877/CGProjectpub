@@ -11,6 +11,8 @@ import platform
 
 if platform.system() == 'Linux':
     h.nrn_load_dll(os.path.join("modFiles/x86_64/.libs/libnrnmech.so"))
+else:
+    h.nrn_load_dll(os.path.join("modFiles","nrnmech.dll"))
 
 if len(sys.argv) < 4:
     print("seed, voltage output filename, lv1 parameters repeated output  filename,eventTimes input filename,Control or TEA")
