@@ -1,0 +1,16 @@
+# passive properties: we weren't actually using the stimulus protocol. it seems only useful for testing a TEA case to see that it is similar to control
+# in Ransdell 2013 they calculated Rin by: Rin was measured in TECC with 10 negative current injection steps (t⫽ 2s, ⫺1to ⫺10 nA).. This is not what I do
+# could not find a reference for tau, so I didn't use it. not sure how to calculate it anyway
+# https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6328273/ shows there is feedback between LC and SC?
+# should the synaptic input increase in magnitude not just frequency? This will require >1 Exp2Syn
+# in LV2, should the siz gleak be based on the passing soma leak, or pick a new one, or pick the same one that was randomly picked by the neurite?
+#https://www.neuron.yale.edu/phpBB/viewtopic.php?t=2991 suggests that this would be faster if the templates were made in hoc instead of python classes
+#unclear why lv2 is slow. using a vecstim vs iclamp seems to make no difference. It is probably just that the cell is larger and has more channels?
+#parallelContext has not been tried recently to speed things up
+#calcium infity pool is not set in the refactored code. Should I set it? to what value?
+#make the directory initialization more generic so we don't have to write the path each time
+#like make a constant function be the path, and the lists be constants, then set them outside the directory
+#so they are not included in pushing and pulling to git.
+#printNetVoltages is probably better done by using the unpacking feature of plt.subplots instead of the clumsy array list?
+#generalize the pdf printing
+#add a function that returns the parameter number and prints it 

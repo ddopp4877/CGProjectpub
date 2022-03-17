@@ -1,0 +1,23 @@
+#save output figures
+import numpy as np
+from modules.postAnalysis import printNetVoltages,printLV2Voltages
+import os
+import pandas as pd
+
+#print all voltages to a pdf
+RejectionResults = np.loadtxt(os.path.join("output","LV2","LV2RejectionResults.txt"))
+Voltages = np.array(pd.read_pickle(os.path.join("output","LV2","VsomaControl.pkl"))).T
+printLV2Voltages(Voltages,RejectionResults,"LV2 Voltages - Control")
+
+RejectionResults = np.loadtxt(os.path.join("output","LV2","LV2RejectionResults.txt"))
+Voltages = np.array(pd.read_pickle(os.path.join("output","LV2","VsomaTEA.pkl"))).T
+printLV2Voltages(Voltages,RejectionResults,"LV2 Voltages - TEA")
+
+RejectionResults = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
+Voltages = np.array(pd.read_pickle(os.path.join("output","LV3","VsomaControl.pkl"))).T
+printNetVoltages(Voltages,RejectionResults,"Network Voltages - Control")
+
+Voltages = np.array(pd.read_pickle(os.path.join("output","LV3","VsomaTEA.pkl"))).T
+printNetVoltages(Voltages,RejectionResults,"Network Voltages - TEA")
+
+
