@@ -177,7 +177,7 @@ def LV1ParamsDict():
 
 def LV1ParamsDictRestricted():
         params = { 
-          'soma_leak':      [6.2e-5,60e-5],
+          'soma_leak':      [6.2e-5,20e-5],
           'soma_a2':        [17.2e-5,190e-5],
           'soma_bkkca':     [7.9e-4,61e-4],
           'soma_skkca':     [88e-5,200e-5],
@@ -187,7 +187,7 @@ def LV1ParamsDictRestricted():
           'soma_cat':       [16e-5,31e-5],
           'soma_caN':       [7e-5,15e-5],
           'soma_nap2':      [7.6e-5,35e-5],
-          'neurite_leak':   [6.2e-5,97-5]
+          'neurite_leak':   [6.2e-5,97e-5]
         }
         return params
 
@@ -198,7 +198,7 @@ def makeRandomCellsLV1(*args):
         Trials = args[0]
         seed = args[1]
         #make the random parameter array
-        paramsDict = LV1ParamsDict()
+        paramsDict = LV1ParamsDictRestricted()
         params = makeRandomParams(Trials,seed,paramsDict)
 
         #make the same number of cells, with default initialization (not written or needed)

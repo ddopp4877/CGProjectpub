@@ -117,9 +117,10 @@ def plotDistributions(Params,paramsList):
     xlen,ylen = 4,4
     fig,axs = plt.subplots(xlen,ylen,figsize=(15,10))
     plt.subplots_adjust(left=0.2, bottom=0.2, right=.9, top=.92, wspace=0.2, hspace=0.4)
+
     for i in range(xlen):
-        for j in range(xlen):
-            if (i%xlen*xlen+j) == len(paramsList):
+        for j in range(xlen):           
+            if (i%xlen*xlen+j) >= len(paramsList):
                 break
             axs[i][j].hist(Params[:,i%xlen*xlen+j],bins = 50)
             axs[i][j].set(title = paramsList[i%xlen*xlen+j])

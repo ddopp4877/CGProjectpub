@@ -10,11 +10,11 @@ VoltageFilenameTEA = "VsomaTEA"
 ParamsFilenameTEA = "passParamsRepeatTEA"
 passParamsFilename = "passParams"
 
-#rejectionResults = np.loadtxt(os.path.join("output","LV2","LV2RejectionResults.txt"))
+rejectionResults = np.loadtxt(os.path.join("output","LV2","LV2RejectionResults.txt"))
 #rejectionResultsRaw = np.loadtxt(os.path.join("output","LV2","LV2RejectionRaw.txt"))
-#critList = ["Areas", "Peaks", "SPB", "AreasTEA", "PeaksTEA", "SPBTEA"]
+critList = ["Areas", "Peaks", "SPB", "AreasTEA", "PeaksTEA", "SPBTEA"]
 
-#plot1 = plotFailCrit(rejectionResults,critList)#rejection results need to be an array with coded values in the columns and rejection criteria in the rows
+plot1 = plotFailCrit(rejectionResults,critList)#rejection results need to be an array with coded values in the columns and rejection criteria in the rows
 
 """
 rejectionResults = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
@@ -76,11 +76,11 @@ print(peaks)
 print(_)
 """
 fullParams = fullParamsList()
-LV3passParams = np.array(pd.read_pickle(os.path.join("output","LV3",passParamsFilename  + ".pkl")))
-Params = np.array(pd.read_pickle(os.path.join("output","LV2","passParams" + ".pkl"))).T
+#LV3passParams = np.array(pd.read_pickle(os.path.join("output","LV3",passParamsFilename  + ".pkl")))
+Params = np.array(pd.read_pickle(os.path.join("input","LV2","passParamsRepeat" + ".pkl"))).T
 
-plotDistributions(Params,fullParams)
+plotDistributions(Params,list(LV1ParamsDict().keys()))
+print(Params.shape)
 
-
-plotCorrelogram(LV3passParams,fullParams)
+#plotCorrelogram(Params,fullParams)
 plt.show()

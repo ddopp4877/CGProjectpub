@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 totalStart = time.time()
 
 seed = "222"
-LV1Trials = "100"
+LV1Trials = "3000"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -191,7 +191,7 @@ uNetPassIdxs = np.where(netPass == 1)[0]
 
 totalEnd = time.time()
 print("Totaltime = %.2f" %(totalEnd - totalStart))
-
+"""
 RejectionResults = np.loadtxt(os.path.join("output","LV2","LV2RejectionResults.txt"))
 Voltages = np.array(pd.read_pickle(os.path.join("output","LV2","VsomaControl.pkl"))).T
 printLV2Voltages(Voltages,RejectionResults,"LV2 Voltages - Control")
@@ -206,3 +206,4 @@ printNetVoltages(Voltages,RejectionResults,"Network Voltages - Control")
 
 Voltages = np.array(pd.read_pickle(os.path.join("output","LV3","VsomaTEA.pkl"))).T
 printNetVoltages(Voltages,RejectionResults,"Network Voltages - TEA")
+"""
