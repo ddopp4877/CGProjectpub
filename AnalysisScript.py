@@ -82,5 +82,7 @@ Params = np.array(pd.read_pickle(os.path.join("input","LV2","passParamsRepeat" +
 plotDistributions(Params,list(LV1ParamsDict().keys()))
 print(Params.shape)
 
-#plotCorrelogram(Params,fullParams)
+lv3ParamsList = fullParams
+LV3passParams = np.array(pd.read_pickle(os.path.join("output","LV3",passParamsFilename  + ".pkl")))
+plotCorrelogram(LV3passParams,lv3ParamsList)
 plt.show()

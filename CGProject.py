@@ -9,11 +9,13 @@ import pickle
 from subprocess import Popen, PIPE
 import sys
 import matplotlib.pyplot as plt
+import gc
+import tracemalloc
 
 totalStart = time.time()
 
 seed = "222"
-LV1Trials = "3000"
+LV1Trials = "10000"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -21,6 +23,7 @@ passParamsFileName = "passParams"
 passParamsFileNameRepeat = "passParamsRepeat"
 eventTimesFileName = "EventTimes"
 
+"""
 #start LV1timer
 start = time.time()
 
@@ -68,6 +71,7 @@ ET.to_pickle(os.path.join("input","LV2",eventTimesFileName + ".pkl"))
 
 #start LV2timer
 start = time.time()
+
 #LV2 control
 #output = subprocess.run(['mpiexec', '-n', '4', 'python', 'LV2Simulation.py', str(LV1passnumber), seed, VoltageFilename, passParamsFileNameRepeat, eventTimesFileName,"Control"],capture_output=True)
 output = subprocess.run(['python', 'LV2Simulation.py',seed, VoltageFilename, passParamsFileNameRepeat, eventTimesFileName,"Control"],capture_output=True)
@@ -84,14 +88,16 @@ output = subprocess.run(['python', 'LV2Simulation.py', seed, VoltageFilename, pa
 print(output)
 end = time.time()
 print("LV2 TEA runtime = %.2f" %(end - start))
+"""
 
 #LV2RejectionProtocol:
 timeArray = np.loadtxt(os.path.join("output","LV2","time.txt"))
-Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl"))).T
-VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl"))).T
-
-
+#Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
+#VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
+Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
+VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
 coded, Raw, Idxs,critList = LV2RejectionProtocol(timeArray, Vsoma,VsomaTEA )# coded, values, and indexes
+gc.collect()
 np.savetxt(os.path.join("output","LV2","LV2RejectionResults.txt"),coded)
 np.savetxt(os.path.join("output","LV2","LV2RejectionRaw.txt"),Raw)
 

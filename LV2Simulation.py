@@ -8,6 +8,8 @@ import time
 import pandas as pd
 from numpy import empty
 import platform
+import tracemalloc
+import gc
 
 if platform.system() == 'Linux':
     h.nrn_load_dll(os.path.join("modFiles/x86_64/.libs/libnrnmech.so"))
@@ -49,22 +51,29 @@ vsAll = [h.VecStim() for i in range(0,Trials)]
 ETs = [h.Vector(eventTimes[i,eventTimes[i,:] !=0]) for i in range(0,Trials)]
 syns = [h.Exp2Syn(LCs[i].siz(1)) for i in range(0,Trials)]
 
+
+
 for i in range(0,Trials):
     vsAll[i].play(ETs[i])
     syns[i].tau1,syns[i].tau2,syns[i].e   = 10,120,-15
 
 NetCons = [h.NetCon(vsAll[i],syns[i],-10,0,synGain) for i in range(0,Trials)]    
 
-V = [h.Vector().record(LCs[i].soma(0.5)._ref_v) for i in range(0,Trials)]
+v = [h.Vector().record(LCs[i].soma(0.5)._ref_v) for i in range(0,Trials)]
 
 h.dt=0.2
 h.finitialize(-51)
 h.continuerun(2550)
- 
+
+#V = pd.DataFrame(data = v,dtype='float32')
+V = np.array(v,dtype='float32')
 
 
-V = pd.DataFrame(data = V)
-V.to_pickle(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"))
+#V.to_pickle(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"))
+np.save(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"),V)
+
+gc.collect()
+
 #only need to save params and time once, they dont change for TEA case
 if controlorTEA == "Control":
     Params = pd.DataFrame(data = params)
@@ -72,4 +81,3 @@ if controlorTEA == "Control":
     dt = 0.2
     simTime = np.arange(0,(np.array(V).shape)[1]*dt,dt)
     np.savetxt(os.path.join("output","LV2","time.txt"),simTime)
-
