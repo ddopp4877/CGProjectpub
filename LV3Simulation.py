@@ -29,6 +29,7 @@ controlorTEA = sys.argv[5]
 
 eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
 LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
+
 Trials = (LV2PassParams.shape)[1]
 
 UNparamsNO = (np.unique(LV2PassParams,axis=1)).shape[1]

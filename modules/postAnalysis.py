@@ -45,11 +45,12 @@ def plotNet(array,NetNo,SCfreq):
     
     return fig
 
-def plotCorrelogram(params,paramsList):
+def plotCorrelogram(params,paramsList,title = 'no title'):
     plot = plt.figure(figsize=(10,5))
     Corrs = np.corrcoef(params)
     ax = sns.heatmap(Corrs,xticklabels=paramsList,yticklabels = paramsList,vmin=-0.5,vmax=0.5,annot=True)
-    plt.title('LV3 Passing Net Correlogram',fontsize=15)
+    
+    plt.title(title,fontsize=15)
     return plot
 
 
@@ -114,7 +115,7 @@ def printLV2Voltages(Voltages, RejectionResults,outfile):
  
                 
 def plotDistributions(Params,paramsList):
-    xlen,ylen = 4,4
+    xlen,ylen = 5,5
     fig,axs = plt.subplots(xlen,ylen,figsize=(15,10))
     plt.subplots_adjust(left=0.2, bottom=0.2, right=.9, top=.92, wspace=0.2, hspace=0.4)
 
@@ -122,7 +123,7 @@ def plotDistributions(Params,paramsList):
         for j in range(xlen):           
             if (i%xlen*xlen+j) >= len(paramsList):
                 break
-            axs[i][j].hist(Params[:,i%xlen*xlen+j],bins = 50)
+            axs[i][j].hist(Params[:,i%xlen*xlen+j],bins = 100)
             axs[i][j].set(title = paramsList[i%xlen*xlen+j])
 
 def plotCellStruct(LC):# untested

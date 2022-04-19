@@ -15,7 +15,7 @@ import tracemalloc
 totalStart = time.time()
 
 seed = "222"
-LV1Trials = "10000"
+LV1Trials = "100"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -23,7 +23,7 @@ passParamsFileName = "passParams"
 passParamsFileNameRepeat = "passParamsRepeat"
 eventTimesFileName = "EventTimes"
 
-"""
+
 #start LV1timer
 start = time.time()
 
@@ -88,7 +88,7 @@ output = subprocess.run(['python', 'LV2Simulation.py', seed, VoltageFilename, pa
 print(output)
 end = time.time()
 print("LV2 TEA runtime = %.2f" %(end - start))
-"""
+
 
 #LV2RejectionProtocol:
 timeArray = np.loadtxt(os.path.join("output","LV2","time.txt"))
@@ -112,22 +112,27 @@ print("Params = %d" %((params.shape)[1]))
 print("LV2 Passing Params = %d" %((passingParams.shape)[1]))
 
 
+
+
 # LV3: 
 # put the passing cells of LV2 into sets of 5. then repeat the params 16 times, give to LV3 code. LV3 code will connect all the sizs to each other in a network, and lc12 and lc45 then run.
-
+passingParams = np.loadtxt("avgNets.txt")
 #make passing params of lv2 a multiple of 5, then repeat each network 16 times, one for each SCfreq
 if (passingParams.shape)[1] < 5:
     print("not enough cells to make a network")
 else:
 
     passingParams = passingParams[:,0:int(((passingParams.shape)[1]) - ((passingParams.shape)[1] % 5))]
+    
     passingParamsRepeated = repeatSubarray(passingParams, 5,16)
+    print(passingParamsRepeated.shape)
     passingParamsRepeated = pd.DataFrame(data = passingParamsRepeated)
     passingParamsRepeated.to_pickle(os.path.join("input","LV3",passParamsFileNameRepeat + ".pkl"))
 
     ### create an array of event times, and save it to a file for lv2simulation to read and use for the source of the netcon that is used in each synapse.
     #the event times will be from 16-32 Hz and it will be for each netcon, and for about 30 long, pad with zeros. so shape is (lv1passnumber, bufferSize)
     LV2passnumber = (passingParams.shape)[1]
+    print(LV2passnumber)
     #make a list of the freqs to make event times for, and the event times:
     eventTimes, SCfreqs = makeEventTimes(LV2passnumber,seed)# takes the number of unique cells. return 16 synaptic inputs (spike times) for each passing cell. there are N*16 number of freqs then.
 
@@ -135,9 +140,9 @@ else:
 
     #since each set of 5 parameters is a network, each unique synaptic input must repeat 5 times, that is, each row repeat 5. 
     #the array given to neuron must have the rows as trials and columns as event times, but repeatSubarray() repeats the subarray horizontally
-    eventTimes = np.repeat(eventTimes.T, 5, axis=1 )#take the event times for 1 freq, and repeat it 5 times.
-    eventTimes = eventTimes.T
-
+    #eventTimes = np.repeat(eventTimes.T, 5, axis=1 )#take the event times for 1 freq, and repeat it 5 times.
+    #eventTimes = eventTimes.T
+    print(eventTimes.shape)
 
     ET = pd.DataFrame(data = eventTimes)
     ET.to_pickle(os.path.join("input","LV3",eventTimesFileName + ".pkl"))
@@ -156,7 +161,7 @@ else:
     print(output)
     endLV3 = time.time()
     print("LV3 TEA time = %.2f" %(endLV3 - startLV3))
-  
+
     #LV3RejectionProtocol:
   
 timeArray = np.loadtxt(os.path.join("output","LV3","time.txt"))
@@ -178,12 +183,23 @@ uniqueNetPass = [1 if (np.any(netPass[i:i+16] == 1)) else 0 for i in range(0,len
 netPassNo = uniqueNetPass.count(1)
 print("#networks tested = %d\n#trials passed = %d\n#networks passed = %d" %(b/16/5,(list(netPass)).count(1),netPassNo))
 
-uNetPassIdxs = np.repeat(uniqueNetPass,5)
 
+# save just the unique parameters by saving only the first passing network (freq 16 hz)
+
+uNetPassIdxs = np.repeat(uniqueNetPass,5*16)
 #save passing params and voltages
 params = np.array(pd.read_pickle(os.path.join("output","LV3",passParamsFileNameRepeat  + ".pkl")))
-params = np.unique(params,axis=1)
+
 passingParams = params[:,(np.where(np.array(uNetPassIdxs)==1))[0]]
+
+[a,b] = passingParams.shape
+allNets = np.ones((a,1))
+for i in range(0,b,80):
+    network = passingParams[:,i:i+5]
+    allNets = np.hstack((allNets,network))
+allNets = allNets[:,1:]
+
+
 passParamsLV3 = pd.DataFrame(data = passingParams)
 passParamsLV3.to_pickle(os.path.join("output","LV3",passParamsFileName + ".pkl"))
 
@@ -191,9 +207,17 @@ nonpassingParams = params[:,(np.where(np.array(uNetPassIdxs)!=1))[0]]
 nonpassingParams = pd.DataFrame(data = nonpassingParams)
 nonpassingParams.to_pickle(os.path.join("output","LV3","nonpassingParams" + ".pkl"))
 
+### save the parameters with the rejection criteria
 
-uNetPassIdxs = np.where(netPass == 1)[0]
+rejectionResultsRaw = np.loadtxt(os.path.join("output","LV3","LV3RejectionRaw.txt"))
 
+LV3passParams = params[:,(np.where(np.array(uNetPassIdxs)==1))[0]]
+LV3passParams = np.vstack((LV3passParams,rejectionResultsRaw[:,(np.where(np.array(uNetPassIdxs)==1))[0]]))
+
+LV3passParams = pd.DataFrame(data = LV3passParams)
+LV3passParams.to_pickle(os.path.join("output","LV3","LV3passParamsandCrit" + ".pkl"))
+
+### end
 
 totalEnd = time.time()
 print("Totaltime = %.2f" %(totalEnd - totalStart))

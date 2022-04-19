@@ -7,6 +7,8 @@ import math
 import shutil
 import pandas as pd
 import neuron
+import h5py
+
 h.load_file('stdrun.hoc')
 #load mechanisms from folder with modfiles. If this doesn't work then just put all the mod files in the same folder as the script that uses them. also this is for windows not linux
 import platform
@@ -25,6 +27,36 @@ else:
 
 ##GENERAL
 
+def folderList():
+    someList  = ['input','output']
+    return someList
+
+def subfolderList():
+    someList = ['LV1','LV2','LV3']
+    return someList 
+
+def convertfilestoH5():
+    fileList = os.listdir()
+    for file in fileList:
+        if file.endswith(".txt"):
+            data = np.loadtxt(file)
+        if file.endswith(".pkl"):
+            data  = np.array(pd.read_pickle(file),dtype = 'float32').T
+
+        filename  = file.split(".")[0]#get the filename without the extension  
+        if not file.endswith(".hdf5"):
+            with h5py.File(filename +'.hdf5', 'w') as f:
+                print("writing...")
+                dset = f.create_dataset('default',data=data)
+
+def convertResultstoH5(folderList,subfolderList):# run in the project directory
+
+    for folder in folderList:
+        for subfolder in subfolderList:
+            os.chdir(os.path.join(os.getcwd(),folder,subfolder))     
+            convertfilestoH5()
+            os.chdir("..")
+            os.chdir("..")
 
 #each folder will have all the subfolders. should be able to make a list of lists for more generalization later
 def mkDirandSubdir(folderList,subfolderList):

@@ -151,5 +151,5 @@ def LV3RejectionProtocol(t,v,vTEA):
     critList.append(["xcorrs","xcorrsTEA","AllPass"])
     
     return taggedArray, rawArray, passingIdxs,critList
-
+#returns 1 for pass, 0 for fail, 2 for fail control or tea (can't tell which one but not really important for now), 4 for fail both.
 
