@@ -116,7 +116,7 @@ print("LV2 Passing Params = %d" %((passingParams.shape)[1]))
 
 # LV3: 
 # put the passing cells of LV2 into sets of 5. then repeat the params 16 times, give to LV3 code. LV3 code will connect all the sizs to each other in a network, and lc12 and lc45 then run.
-passingParams = np.loadtxt("avgNets.txt")
+#passingParams = np.loadtxt("avgNets.txt")
 #make passing params of lv2 a multiple of 5, then repeat each network 16 times, one for each SCfreq
 if (passingParams.shape)[1] < 5:
     print("not enough cells to make a network")
