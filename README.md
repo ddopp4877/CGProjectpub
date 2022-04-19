@@ -4,10 +4,10 @@ Getting started:
 download python 3.9 (>= 3.10 will not work with neuron 8.0)
 
 windows:
-download Neuron 8.0
+download Neuron 8.0  
 pip install -r requirmentsWindows.txt
 
-Unix:
+Unix:  
 pip install -r requirements.txt
 
 python initProject.py
