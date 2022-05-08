@@ -5,11 +5,12 @@ download python 3.9 (>= 3.10 will not work with neuron 8.0)
 
 windows:  
 download Neuron 8.0  
-pip install -r requirmentsWindows.txt
+pip install -r requirementsWindows.txt
 
 Unix:  
-pip install -r requirements.txt
-
+pip install -r requirements.txt  
+  
+then run:  
 python initProject.py  
 python CGProject.py
 
