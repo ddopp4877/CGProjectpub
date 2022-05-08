@@ -26,9 +26,17 @@ voutfilename = sys.argv[2]
 passparamsfilename = sys.argv[3]
 eventtimesfilename = sys.argv[4]
 controlorTEA = sys.argv[5]
+averageorNo = sys.argv[6]
+averageorNo = averageorNo.lower()
+if averageorNo == 'avg':
+    inpath = os.path.join("input","LV3","Avg")
+    outpath = os.path.join("output","LV3","Avg")
+else:
+    inpath = os.path.join("input","LV3")
+    outpath = os.path.join("output","LV3")
 
-eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
-LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
+eventTimes = np.array(pd.read_pickle(os.path.join(inpath,eventtimesfilename + ".pkl")))
+LV2PassParams =  np.array(pd.read_pickle(os.path.join(inpath, passparamsfilename+ ".pkl")))
 
 Trials = (LV2PassParams.shape)[1]
 
@@ -118,12 +126,10 @@ h.finitialize(-51)
 h.continuerun(2550)
  
 
-V = pd.DataFrame(data = v)
-V.to_pickle(os.path.join("output","LV3",voutfilename + controlorTEA + ".pkl"))
+V = pd.DataFrame(data = v,dtype='float32')
+V.to_pickle(os.path.join(outpath,voutfilename + controlorTEA + ".pkl"))
 if controlorTEA == "Control":
-    Params = pd.DataFrame(data = params)
-    Params.to_pickle(os.path.join("output","LV3",passparamsfilename + ".pkl"))
-    dt = 0.2
-    simTime = np.arange(0,(np.array(v).shape)[1]*dt,dt)
-    np.savetxt(os.path.join("output","LV3","time.txt"),simTime)
+    Params = pd.DataFrame(data = params,dtype = 'float32')
+    Params.to_pickle(os.path.join(outpath,passparamsfilename + ".pkl"))
+
 

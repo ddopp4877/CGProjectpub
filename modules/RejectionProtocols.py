@@ -5,6 +5,8 @@ import math
 from sklearn import metrics
 from scipy.signal import find_peaks
 
+from modules.makeParams import getSimTime
+
 #general
 def tag(array,upper,lower):
     failHigh = array > upper
@@ -79,9 +81,9 @@ def LV2RejectionCalculations(t,v):
      SPBs = CalcSPB(v)
      return Areas,Peaks,SPBs
 
-def LV2RejectionProtocol(t,v,vTEA):
+def LV2RejectionProtocol(v,vTEA):
     #since tag() rewrites the array, save the raw data first
-
+    t = getSimTime(v)
     Areas,Peaks,SPB = LV2RejectionCalculations(t,v)
     AreasTEA,PeaksTEA,SPBTEA = LV2RejectionCalculations(t,vTEA)
     TEAAreaLim = Areas*1.2
@@ -117,17 +119,18 @@ def LV2RejectionProtocol(t,v,vTEA):
 
     #find the IDXs that pass everything
     passingIdxs = PeaksTEAtagged*AreasTEAtagged*SPBtagged*Peakstagged*Areastagged
-
+    
     return taggedArray, rawArray, passingIdxs, critList
 
-def LV3RejectionProtocol(t,v,vTEA):
-    coded, Raw, passingIdxs,critList = LV2RejectionProtocol(t, v,vTEA )# coded, values, and indices
+def LV3RejectionProtocol(v,vTEA):
+    t = getSimTime(v)
+    coded, Raw, passingIdxs,critList = LV2RejectionProtocol( v,vTEA )# coded, values, and indices
   
     
     xcorrs,xcorrsTEA = [],[]
     for i in range(2, (v.shape)[1],5):
-        xcorr = np.corrcoef(v[int(300/0.2):int(1400/0.2),i],v[int(300/0.2):int(1400/0.2),i+2])[0][1]
-        xcorrTEA = np.corrcoef(vTEA[int(300/0.2):int(1400/0.2),i],v[int(300/0.2):int(1400/0.2),i+2])[0][1]
+        xcorr = abs(np.corrcoef(v[int(300/0.2):int(1400/0.2),i],v[int(300/0.2):int(1400/0.2),i+2])[0][1])
+        xcorrTEA = abs(np.corrcoef(vTEA[int(300/0.2):int(1400/0.2),i],v[int(300/0.2):int(1400/0.2),i+2])[0][1])
         xcorrs.append(xcorr)
         xcorrsTEA.append(xcorrTEA)
 

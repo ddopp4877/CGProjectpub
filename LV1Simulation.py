@@ -54,8 +54,8 @@ h.dt=0.2
 h.finitialize(-51)
 h.continuerun(2550)
 print("done")
-V = pd.DataFrame(data = v)
-Params = pd.DataFrame(data = params)
+V = pd.DataFrame(data = v,dtype='float32')
+Params = pd.DataFrame(data = params,dtype = 'float32')
 V.to_pickle(os.path.join("output","LV1",sys.argv[3] +  ".pkl"))
 Params.to_pickle(os.path.join("output","LV1",sys.argv[4] +  ".pkl"))
 

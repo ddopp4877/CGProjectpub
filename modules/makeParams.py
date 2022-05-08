@@ -135,7 +135,7 @@ def makeEventTimes(Trials,seed):
     return All, SCfreqs
 
 
-
+#this can be used generally, but here I intend to give it a network, and it copies that network 16 times for the LV3 simulation input
 def repeatSubarray(array, subSize,repeatNo):#could not figure out how to get np.tile to do this, thus:
     assert len(array.shape) == 2 #this function is only for 2d arrays, with rows for trials and columns for variables
     All = []
@@ -147,7 +147,7 @@ def repeatSubarray(array, subSize,repeatNo):#could not figure out how to get np.
     return All
 
 
-def getSimTime(simData, dt):#2d array, rows are time steps columns are variables; expects numpy
+def getSimTime(simData, dt=0.2):#2d array, rows are time steps columns are variables; expects numpy
     return np.arange(0,(simData.shape)[0]*dt,dt)
 
 def getNetIDX(netNo,SCfreq):
@@ -231,6 +231,7 @@ def makeRandomCellsLV1(*args):
         seed = args[1]
         #make the random parameter array
         paramsDict = LV1ParamsDictRestricted()
+        #paramsDict = LV1ParamsDict()
         params = makeRandomParams(Trials,seed,paramsDict)
 
         #make the same number of cells, with default initialization (not written or needed)
@@ -277,6 +278,14 @@ def LV2ParamsDictRestricted():
          }
     return params
 
+def LV3CritList():
+    critList = ['AUC_Control','Peaks_Control','SPB_Control','AUC_TEA','Peaks_TEA','SPB_TEA','Synchrony','Synchrony_TEA']
+    return critList
+
+def LV2CritList():
+    critList = ['AUC_Control','Peaks_Control','SPB_Control','AUC_TEA','Peaks_TEA','SPB_TEA']
+    return critList
+    
 
 def fullParamsList():
     lv3ParamsList = list(LV1ParamsDict().keys()) + list(LV2ParamsDict().keys())
@@ -370,8 +379,18 @@ def makeCellsLV3(LV2PassParams,controlorTEA):#the passparams file should be each
 
         return params, LCs
 
+def makeAvgNets(LV3passParams):#LV3passParams should be the unique networks which pass lv3
+    [a,b] = LV3passParams.shape
 
+    avgNets = np.ones((a,1))
 
+    for i in range(0,b,5):
+        avgNets = np.hstack((avgNets,np.mean(LV3passParams[:,i:i+5],axis=1).reshape(-1,1)))
+    avgNets = avgNets[:,1:]
+
+    avgNets = np.repeat(avgNets,5,axis=1)
+
+    return avgNets
 ################################################################            CLASSES               ##########################################################################
 
 #make a Large Cell for LV1 (truncated, passive soma)

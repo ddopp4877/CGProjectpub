@@ -18,6 +18,13 @@ elif (result == 'y'):
     rmDirs(folderList)
     mkDirandSubdir(folderList,subfolderList)
     
+        #make averaged folders
+    path1 = os.path.join("input","LV3","Avg")
+    path2 = os.path.join("output","LV3","Avg")
+    os.mkdir(path1)
+    os.mkdir(path2)
+    
+    
 else:
     print("invalid input")
 

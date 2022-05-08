@@ -63,20 +63,20 @@ v = [h.Vector().record(LCs[i].soma(0.5)._ref_v) for i in range(0,Trials)]
 
 h.dt=0.2
 h.finitialize(-51)
-h.continuerun(2550)
+#h.continuerun(2550)
+h.continuerun(2000)
+V = pd.DataFrame(data = v,dtype='float32')
+#V = np.array(v,dtype='float32')
 
-#V = pd.DataFrame(data = v,dtype='float32')
-V = np.array(v,dtype='float32')
 
-
-#V.to_pickle(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"))
-np.save(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"),V)
+V.to_pickle(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"))
+#np.save(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"),V)
 
 gc.collect()
 
 #only need to save params and time once, they dont change for TEA case
 if controlorTEA == "Control":
-    Params = pd.DataFrame(data = params)
+    Params = pd.DataFrame(data = params,dtype = 'float32')
     Params.to_pickle(os.path.join("output","LV2",passparamsfilename + controlorTEA + ".pkl"))
     dt = 0.2
     simTime = np.arange(0,(np.array(V).shape)[1]*dt,dt)
