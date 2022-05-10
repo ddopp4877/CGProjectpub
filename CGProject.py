@@ -15,7 +15,7 @@ import tracemalloc
 totalStart = time.time()
 
 seed = "222"
-LV1Trials = "300"
+LV1Trials = "50"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -26,7 +26,7 @@ eventTimesFileName = "EventTimes"
 
 #start LV1timer
 start = time.time()
-"""
+
 #LV1
 #output = subprocess.run(['mpiexec', '-n', '1', 'python', 'LV1Simulation.py', LV1Trials, seed, VoltageFilename, ParamsFilename],capture_output=True)
 output = subprocess.run(['python', 'LV1Simulation.py', LV1Trials, seed, VoltageFilename, ParamsFilename],capture_output=True)
@@ -189,7 +189,7 @@ totalEnd = time.time()
 
 print("Totaltime = %.2f" %(totalEnd - totalStart))
 
-"""
+
 
 print("do you want to rerun LV3 with averaged networks? [y\\n]")
 choice = input()
@@ -200,10 +200,10 @@ if choice == 'y':
     
     #make averaged nets
     
-   # LV3passParams = np.array(pd.read_pickle(os.path.join("output","LV3","passParamsRepeat.pkl")))
-    LV3passParams = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\passParamsRepeat.pkl'))
-    #coded = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
-    coded = np.loadtxt(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\LV3RejectionResults.txt')
+    LV3passParams = np.array(pd.read_pickle(os.path.join("output","LV3","passParamsRepeat.pkl")))
+    #LV3passParams = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\passParamsRepeat.pkl'))
+    coded = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
+    #coded = np.loadtxt(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\LV3RejectionResults.txt')
     passIdxs,failIdxs,codedPassexpanded = getPassIdxs(coded)
     passParams = getEveryFirstNet(LV3passParams[:,passIdxs])
     

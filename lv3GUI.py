@@ -355,7 +355,7 @@ class NetPlot:
             elif(controlorTEA== "TEA"):
                 self.canvas.get_tk_widget().grid(column = plotCols, row=19,rowspan=19,padx = 180,pady=10)
 
-netNo,FreqNo = 2,22 #network number ?, tested at ? Hz
+netNo,FreqNo = 0,22 #network number ?, tested at ? Hz
 startNo = getNetIDX(netNo,FreqNo)
 
 

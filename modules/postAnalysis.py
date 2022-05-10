@@ -16,6 +16,30 @@ import pandas as pd
 from modules.makeParams import *
 
 
+def getpassingNetIDXs(coded):#each network id is created for each cell in that network that passed when in a network
+    [a,b] = coded.shape
+    cellids = np.arange(0,int((coded.shape)[1]/5/16))
+    netids = np.repeat(cellids,5*16)
+    codedwNets = np.vstack((coded,netids))
+    passnetIDs =np.array([int(codedwNets[a,i]) if (np.all(codedwNets[:a-2,i:i+5]==1)) else -1 for i in range(0,b,5)])#list of cellids of passing nets, 5x less than all traces 56000
+    passnetIDs = np.repeat(passnetIDs,5)
+    return passnetIDs
+
+
+def mapping(passnetIDXs):#run getpassingNetIDXs to get passnetIDXs
+    mappedIdxs = np.array([0])
+    j=0
+    for i in range(len(passnetIDXs)-1):
+        
+        if passnetIDXs[i] == passnetIDXs[i+1]:
+            mappedIdxs = np.append(mappedIdxs,j)
+        else:
+            mappedIdxs = np.append(mappedIdxs,j)
+            j+=1
+    mappedIdxs = mappedIdxs[1:]#remove the first item since it is just to get the array started
+    mappedIdxs = np.append(mappedIdxs,mappedIdxs[i])#repeat the last item since we have to stop early
+    return mappedIdxs
+
 def getPassIdxs(codedArray):
     [a,b] = codedArray.shape
     netPass = np.array([1 if(np.all(codedArray[:,i:i+5]==1)) else 0 for i in range(0,b,5)])# mark 1 if all cells in a net passed
