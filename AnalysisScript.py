@@ -8,41 +8,23 @@ import time
 from modules.makeParams import *
 from scipy.stats import kurtosis
 
-
-#get the averaged networks which pass
-LV3passParamsAVG = np.array(pd.read_pickle(r"C:\Users\ddopp\source\repos\CGresults\AVG\output\LV3\passParamsRepeat.pkl"))
-codedAVG = np.loadtxt(r"C:\Users\ddopp\source\repos\CGresults\AVG\output\LV3\LV3RejectionResults.txt")
-passIdxsAVG,failIdxsAVG,allIdxsAVG = getPassIdxs(codedAVG)
-passParamsAVG = getEveryFirstNet(LV3passParamsAVG[:,passIdxsAVG])
+from saveOutFigs import RejectionResults
 
 
-#get the nonaveraged networks which pass
-LV3passParamsOG = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\passParamsRepeat.pkl'))#the set used to make the average params
-coded = np.loadtxt(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\LV3RejectionResults.txt')
-passIdxs,failIdxs,allIdxs = getPassIdxs(coded)
-passParams = getEveryFirstNet(LV3passParamsOG[:,passIdxs])
+#merge parameters, scfreqs,and rejection results raw
+params = np.array(pd.read_pickle(os.path.join("output","LV3","passParamsRepeat.pkl")))
+scfreqs = np.loadtxt(os.path.join("output","LV3","SCfreqs"))
+RejectionResults = np.loadtxt(os.path.join("output","LV3","LV3RejectionRaw.txt"))
 
-#get the averaged networks which fail
-failParamsAVG = getEveryFirstNet(LV3passParamsAVG[:,failIdxsAVG])
-#get the nonaveraged networks which fail
-failParams = getEveryFirstNet(LV3passParamsOG[:,failIdxs])
-#compare the ranges of the failing networks with the nonfailing networks
+args = [params,scfreqs.reshape(1,-1),RejectionResults]
+Params = np.concatenate(args,axis=0)
 
-allIdxsAVG#this is the 1 or 0 for every network at every frequency, 22240 recordings that form 278 networks, 1 if passed, 0 if failed
-allAVGnetspassIdxs = getEveryFirstNet(allIdxsAVG)#1390 forming 278 networks
-p = np.where(allAVGnetspassIdxs==1)[0]#1285 forming 257 networks
-f =  np.where(allAVGnetspassIdxs!=1)[0]#105 forming 21 networks
-t1 = passParams[:,p]# un averaged networks corresponding to the averaged networks that pass
-t2 = passParams[:,f] # un averaged networks corresponding to the averaged networks that fail
+myList = fullParamsList() + ['SCfreqs'] + LV3CritList()
 
-t1R = t1[:,1035:]
 
-#plotCorrelogram(t1R,fullParamsList(),'not avg reduced')
-plotCorrelogram(passParamsAVG,fullParamsList(),'avg')
-plotCorrelogram(passParams,fullParamsList(),'not avg')
+plotCorrelogram(Params,myList,'not avg')
 
-print(np.unique(t1R,axis=1).shape)
-print(np.unique(passParams,axis=1).shape)
-print(np.unique(passParamsAVG,axis=1).shape)
+
+
 
 plt.show()

@@ -6,14 +6,17 @@ import seaborn as sns
 import math
 from modules.makeParams import getNetIDX; sns.set_theme()
 from matplotlib.ticker import FuncFormatter
-#from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.backends.backend_pdf import PdfPages
 #import matplotlib
 #matplotlib.use('Agg')# get some memory error with printing to pdf if this backend isn't used.
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
+
 from scipy import stats
 import pandas as pd
 from modules.makeParams import *
+
+
+
 
 
 def getpassingNetIDXs(coded):#each network id is created for each cell in that network that passed when in a network
@@ -21,24 +24,39 @@ def getpassingNetIDXs(coded):#each network id is created for each cell in that n
     cellids = np.arange(0,int((coded.shape)[1]/5/16))
     netids = np.repeat(cellids,5*16)
     codedwNets = np.vstack((coded,netids))
-    passnetIDs =np.array([int(codedwNets[a,i]) if (np.all(codedwNets[:a-2,i:i+5]==1)) else -1 for i in range(0,b,5)])#list of cellids of passing nets, 5x less than all traces 56000
+    passnetIDs =np.array([int(codedwNets[a,i]) if (np.all(codedwNets[:a,i:i+5]==1)) else -1 for i in range(0,b,5)])#list of cellids of passing nets, 5x less than all traces 56000
     passnetIDs = np.repeat(passnetIDs,5)
-    return passnetIDs
+    passnetIDXs = passnetIDs[np.where(passnetIDs != -1)[0]]#just the passing idxs from the original 56000
+    return passnetIDs,passnetIDXs
 
 
 def mapping(passnetIDXs):#run getpassingNetIDXs to get passnetIDXs
     mappedIdxs = np.array([0])
+    ogIDxs = []
     j=0
     for i in range(len(passnetIDXs)-1):
         
         if passnetIDXs[i] == passnetIDXs[i+1]:
             mappedIdxs = np.append(mappedIdxs,j)
+            ogIDxs.append(passnetIDXs[i])
         else:
             mappedIdxs = np.append(mappedIdxs,j)
+            ogIDxs.append(passnetIDXs[i])
             j+=1
     mappedIdxs = mappedIdxs[1:]#remove the first item since it is just to get the array started
     mappedIdxs = np.append(mappedIdxs,mappedIdxs[i])#repeat the last item since we have to stop early
-    return mappedIdxs
+    ogIDxs.append(ogIDxs[len(ogIDxs)-1])
+    return mappedIdxs,ogIDxs
+
+#go from the passidxs, to the index when we have all cells including nonpassing:
+#passnetIDXs are the indices of the passnetIDs that passed, but /80, so
+def unMap(mappedIdxs,ogIDxs,passnetIDs,netID):#mapped is the result of mapping(), ogIDxs is the second list returned from mapping(), netID is the network of interest in the raster
+    passnetIndex = np.where(mappedIdxs == netID)[0]#index of this network in the mapped indices
+    passnetIndex = np.array(ogIDxs)[passnetIndex][0] #network id of the network which passed in the passnetIDs list
+    netID = passnetIndex *80# the index of the cell in the passnetIDs
+    OGneworkID = passnetIDs[netID] #the id of the network in the original data. for example, network 2 in the mapped data is network 6 in the original
+    return OGneworkID
+
 
 def getPassIdxs(codedArray):
     [a,b] = codedArray.shape
@@ -213,7 +231,7 @@ def plotNet(array,NetNo,SCfreq):
     fig,axs = plt.subplots(1,5,figsize=(25,4))
     startNo=getNetIDX(NetNo,SCfreq)
     [axs[i].plot(array[:,i]) for i in range(0,len(axs))]
-    
+    plt.suptitle('network %d at freq %d', NetNo,SCfreq)
     return fig
 
 def plotCorrelogram(params,paramsList,title = 'no title'):
@@ -228,28 +246,29 @@ def plotCorrelogram(params,paramsList,title = 'no title'):
 def printNetVoltages(Voltages, RejectionResults,outfile):
     
     [a,b] = RejectionResults.shape
-    netPass = np.array([1 if(np.all(RejectionResults[a-1,i:i+5]==1)) else 0 for i in range(0,b,5)])# mark 1 if all cells in a net passed
+    netPass = np.array([1 if(np.all(RejectionResults[:a-1,i:i+5]==1)) else 0 for i in range(0,b,5)])# mark 1 if all cells in a net passed passed all rejection criteria
     netPass = np.repeat(netPass,5)
+  
     SCfreq = np.arange(16,32)
     with PdfPages(outfile+'.pdf') as pdf:
             j=0
             rows,columns = 5,4# 25 networks on one page, one column is one network
 
             ## make a list of all the indices in the matrix such that the 2nd plotted element is the 5th cell, and so on
-            a = []
+            arr = []
             for j in range(0,b,int((rows*columns))):#for all the rows for the number of pages, skipping the number of cells in a page,
                 for i in range(0,rows):#for one row
-                    a.append(np.arange(i+j,i+j+int((rows*columns)),rows))#the array's indices will be the cell number + column number to that number + 1 pg, for how ever many are on a page
-            a = np.concatenate(a,axis=0)
+                    arr.append(np.arange(i+j,i+j+int((rows*columns)),rows))#the array's indices will be the cell number + column number to that number + 1 pg, for how ever many are on a page
+            arr = np.concatenate(arr,axis=0)
 
             for j in range(0,b,rows*columns):#for all the plots, skipping the number in a page,
                 plt.figure(figsize=(15,10))
                 for i in range(1,rows*columns+1):#for the subplot number, go from 1 to the number of cells in a page+1
                     arrayIdx = j+i-1
                     plt.subplot(rows,columns,i)#plot the next cell, right to left up to down
-                    plt.plot(Voltages[:,a[arrayIdx]])# using the array's next index, which is the cell number of the first cell on the page+ the number in the page
-                    if((a[arrayIdx]%5) == 0):
-                        if netPass[int(a[arrayIdx])] == 1:
+                    plt.plot(Voltages[:,arr[arrayIdx]])# using the array's next index, which is the cell number of the first cell on the page+ the number in the page
+                    if((arr[arrayIdx]%5) == 0):
+                        if netPass[int(arr[arrayIdx])] == 1:
                             string = "**"
                         else:
                             string = ""

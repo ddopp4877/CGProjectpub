@@ -38,8 +38,11 @@ teaBoxLabelCol = 6
 
 
 
-eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
-LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
+#eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
+#LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
+
+eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\EventTimes.pkl'))
+LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\passParamsRepeat.pkl'))
 
 Trials = (LV2PassParams.shape)[1]
 subTrials = 5
@@ -355,7 +358,7 @@ class NetPlot:
             elif(controlorTEA== "TEA"):
                 self.canvas.get_tk_widget().grid(column = plotCols, row=19,rowspan=19,padx = 180,pady=10)
 
-netNo,FreqNo = 0,22 #network number ?, tested at ? Hz
+netNo,FreqNo = 655,16 #network number ?, tested at ? Hz
 startNo = getNetIDX(netNo,FreqNo)
 
 

@@ -55,6 +55,7 @@ synGain = 0.13
 #recording variables:
 
 vsAll = [h.VecStim() for i in range(0,Trials)]
+
 ETs = [h.Vector(eventTimes[i,eventTimes[i,:] !=0]) for i in range(0,Trials)]
 syns = [h.Exp2Syn(LCs[i].siz(1)) for i in range(0,Trials)]
 

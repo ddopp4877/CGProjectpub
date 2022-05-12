@@ -15,7 +15,7 @@ import tracemalloc
 totalStart = time.time()
 
 seed = "222"
-LV1Trials = "50"
+LV1Trials = "100"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -91,7 +91,7 @@ print("LV2 TEA runtime = %.2f" %(end - start))
 
 
 #LV2RejectionProtocol:
-timeArray = np.loadtxt(os.path.join("output","LV2","time.txt"))
+
 Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
 VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
 #Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl"),allow_pickle=True)).T
@@ -129,13 +129,13 @@ else:
     passingParamsRepeated.to_pickle(os.path.join("input","LV3",passParamsFileNameRepeat + ".pkl"))
 
     ### create an array of event times, and save it to a file for lv2simulation to read and use for the source of the netcon that is used in each synapse.
-    #the event times will be from 16-32 Hz and it will be for each netcon, and for about 30 long, pad with zeros. so shape is (lv1passnumber, bufferSize)
+    #the event times will be from 16-32 Hz and it will be for each netcon, and for about 50 long, pad with zeros. so shape is (lv1passnumber, bufferSize)
     LV2passnumber = (passingParams.shape)[1]
     print("number of cells from LV2 to use:",LV2passnumber)
     #make a list of the freqs to make event times for, and the event times:
-    eventTimes, SCfreqs = makeEventTimes(LV2passnumber,seed)# takes the number of unique cells. return 16 synaptic inputs (spike times) for each passing cell. there are N*16 number of freqs then.
+    eventTimes, SCfreqs = makeEventTimes(passingParamsRepeated.shape[1],seed,'LV3')# takes the number of trials in the input repeated parameter file . return 16 synaptic inputs (spike times) for each passing cell or network(arg3). there are N*16 number of freqs then.
 
-
+    np.savetxt(os.path.join("output","LV3",'SCfreqs'),SCfreqs)
 
     #since each set of 5 parameters is a network, each unique synaptic input must repeat 5 times, that is, each row repeat 5. 
     #the array given to neuron must have the rows as trials and columns as event times, but repeatSubarray() repeats the subarray horizontally
@@ -225,7 +225,7 @@ if choice == 'y':
     LV2passnumber = (passingParams.shape)[1]
     print("number of cells from LV2 to use:",LV2passnumber)
     #make a list of the freqs to make event times for, and the event times:
-    eventTimes, SCfreqs = makeEventTimes(LV2passnumber,seed)# takes the number of unique cells. return 16 synaptic inputs (spike times) for each passing cell. there are N*16 number of freqs then.
+    eventTimes, SCfreqs = makeEventTimes(passingParamsRepeated.shape[1],seed,'LV3')# takes the number of unique cells. return 16 synaptic inputs (spike times) for each passing cell. there are N*16 number of freqs then.
 
     ET = pd.DataFrame(data = eventTimes)
     ET.to_pickle(os.path.join("input","LV3","Avg",eventTimesFileName + ".pkl"))

@@ -101,37 +101,55 @@ def makeCells(Trials,CellType):
     return LCAll
 
 
-def makeEventTimes(Trials,seed):
+def makeEventTimes(Trials,seed,LVL = 'LV2'):
+   
+    if LVL == 'LV2':
+        print('making event times for LV2')
+        SCfreqsRepeatNo = 1#no repetition
+    
+    if LVL == 'LV3':
+        print('making event times for LV3')
+        Trials = int(Trials/16/5)#since lv3 is fed the repeated array
+        SCfreqsRepeatNo = 5
+     
     SCfreqs = []
     bufferSize = 50
-    np.random.seed(int(seed))
+    rng = np.random.default_rng(seed = int(seed))
+    
     for j in range(0,Trials):
         for i in range(0,16):
-            SCfreqs.append(np.random.uniform(16+i,17+i))
-    All = np.zeros((bufferSize))
+            SCfreqs.append(rng.uniform(15.5+i,16.5+i))
+            
+    
+    SCfreqs = np.repeat(SCfreqs,SCfreqsRepeatNo)
+    
+    if LVL == 'LV3':#need Trials/(repeat size), not repeated network size
+        Trials *=5
+    
+    All = []
     for j in range(0,Trials):
         for i in range(0,16):
-            freq = SCfreqs[i]*0.6
-            spikeNo = math.ceil(freq*.300)
+            freq = SCfreqs[(j*16)+i]*0.6
+            spikeNo = math.ceil(freq*.300)#the frequency for the 300 ms beginning
             firstPart = np.linspace(300,600,spikeNo)
 
-            freq = SCfreqs[i]*0.9
-            spikeNo = math.ceil(freq*0.6)
-            firstPartLastSpikeTime = firstPart[len(firstPart)-1]
+            freq = SCfreqs[(j*16)+i]*0.9
+            spikeNo = math.ceil(freq*0.600)#the freq for the 600 ms middle
             secondPart = np.linspace(600,1200,spikeNo)
-            secondSpace = math.floor(secondPart[1]-secondPart[0])
-            secondPart = np.linspace(600+secondSpace,1200,spikeNo)
+            secondSpace = math.floor(secondPart[3] - secondPart[2])#we want the first event of the middle of the burst to be the same distance from the last spike of the first time..
+            secondPart = np.linspace(firstPart[len(firstPart)-1]+secondSpace ,1200,spikeNo)#..so the spikes remain relatively even
 
-            freq = SCfreqs[i]*0.4
-            spikeNo = math.ceil(freq*.100)
-            firstSpace = math.floor(firstPart[1]-firstPart[0])
-            thirdPart = np.linspace(1200+secondSpace,1300,spikeNo)
-        
+            freq = SCfreqs[(j*16)+i]*0.4
+            spikeNo = math.ceil(freq*.100)#freq for the 100 ms end 
+            thirdPart = np.linspace(1200,1300,spikeNo)
+            thirdSpace = math.floor(secondPart[len(secondPart)-1] - secondPart[len(secondPart)-2])
+            thirdPart = np.linspace(secondPart[len(secondPart)-1] + thirdSpace,1300,spikeNo)
+            
 
-            spikeTrain = np.hstack((firstPart,secondPart,thirdPart))
-            spikeTrain = np.hstack((spikeTrain,np.zeros((bufferSize-len(spikeTrain)))))
-            All = np.vstack((All,spikeTrain))
-    All = All[1:len(All),:]
+            args = [firstPart,secondPart,thirdPart,np.zeros((bufferSize-(len(firstPart)+ len(secondPart) + len(thirdPart))))]
+            All.append(np.concatenate(args,axis=0))
+
+    All = np.array(All,dtype=object)
     return All, SCfreqs
 
 

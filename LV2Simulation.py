@@ -63,8 +63,9 @@ v = [h.Vector().record(LCs[i].soma(0.5)._ref_v) for i in range(0,Trials)]
 
 h.dt=0.2
 h.finitialize(-51)
-#h.continuerun(2550)
-h.continuerun(2000)
+h.continuerun(2550)
+#h.continuerun(2000)
+
 V = pd.DataFrame(data = v,dtype='float32')
 #V = np.array(v,dtype='float32')
 

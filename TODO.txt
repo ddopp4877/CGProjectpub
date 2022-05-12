@@ -14,7 +14,12 @@
 #printNetVoltages is probably better done by using the unpacking feature of plt.subplots instead of the clumsy array list?
 #generalize the pdf printing
 #add a function that returns the parameter number and prints it 
-#need to add rejection results raw for tea, now it is just control?
 # the pdf resulting from two uniform pdfs multiplied is normal. the passing gmax distributions are mostly uniform,
 #and the resulting distribution of the summary statistics (area, spb,etc) is gaussian. Should a linear combination of the conductances predict
 # the summary statistic?
+# different TEA modifiers should be tried, like reduce by 90% not by 97%
+#try rerunning LV2 with the updated eventtimes function
+#use an adjacency matrix or something for LV3
+#add something for visualizing currents
+#make raster plot into a function
+#TEA responses almost all have spikes after the large burst, this is not very like what is in the literature
