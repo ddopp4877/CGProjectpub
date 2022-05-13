@@ -24,7 +24,10 @@ and pass/fail criteria ratios
 
 run saveOutFigs.py to save the voltage traces of the cells or networks to a pdf. change
 the index parameter to determine how many cells/networks to save. passing cells are marked
-with **, so just search this in the pdf to find passing cells or networks
+with **, so just search this in the pdf to find passing cells or networks. Note that if the  
+data is too large, you will have to uncomment import matplotlib matplotlib.use('Agg')  
+in the postAnalysis.py file. The reason this is commented out is because matplotlib will not  
+work in jupyterlab with this backend, but without it you can't print large numbers of networks into the pdf
 
 run lv2GUI.py or lv3GUI.py to tune a cell or network. you can change maximal conductance
 as well as synaptic gain, and for lv3 you can also change gap condutance for large cell or siz
