@@ -36,7 +36,7 @@ as well as synaptic gain, and for lv3 you can also change gap condutance for lar
 
 note that RAM usage seems rather high, probably pandas and pickle are responsible. with 16GB of RAM
 and 10000 cells starting, the resulting data for all 3 runs together is about 20 GB of ROM and at peak runtime (should be during LV2),
- about 8 GB of RAM is used. Total runtime on intel i5 with 16 GB RAM was ~ 6 hours
+ about 8 GB of RAM is used. Total runtime on intel i5 with 16 GB RAM was ~ 12 hours total, ~ 6 hours for LV3
  
 this could probably be worked around if the simulation scripts were turned into generator
 functions, and results aggregated for each round. The most gain could be gotten from doing
