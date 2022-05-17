@@ -15,7 +15,7 @@ import tracemalloc
 totalStart = time.time()
 
 seed = "222"
-LV1Trials = "100"
+LV1Trials = "10000"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -23,7 +23,7 @@ passParamsFileName = "passParams"
 passParamsFileNameRepeat = "passParamsRepeat"
 eventTimesFileName = "EventTimes"
 
-
+"""
 #start LV1timer
 start = time.time()
 
@@ -61,6 +61,9 @@ LV1PassParamsRepeat.to_pickle(os.path.join("input","LV2",passParamsFileNameRepea
 ### create an array of event times, and save it to a file for lv2simulation to read and use for the source of the netcon that is used in each synapse.
 #the event times will be from 16-32 Hz and it will be for each netcon, and for about 30 long, pad with zeros. so shape is (lv1passnumber, 30)
 LV1passnumber = (passingParams.shape)[1]
+print(LV1passnumber)
+
+
 #make a list of the freqs to make event times for:
 if LV1passnumber <1:
    print("not enough cells passed LV1")
@@ -92,10 +95,10 @@ print("LV2 TEA runtime = %.2f" %(end - start))
 
 #LV2RejectionProtocol:
 
-Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
-VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
-#Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl"),allow_pickle=True)).T
-#VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl"),allow_pickle=True)).T
+#Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
+#VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
+Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
+VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
 coded, Raw, Idxs,critList = LV2RejectionProtocol(Vsoma,VsomaTEA )# coded, values, and indexes
 gc.collect()
 np.savetxt(os.path.join("output","LV2","LV2RejectionResults.txt"),coded)
@@ -207,10 +210,7 @@ if choice == 'y':
     passIdxs,failIdxs,codedPassexpanded = getPassIdxs(coded)
     passParams = getEveryFirstNet(LV3passParams[:,passIdxs])
     
-    avgNets = makeAvgNets(passParams)
-    
-    np.savetxt(os.path.join("output","LV3","Avg","avgNets.txt"),avgNets)
-    
+    avgNets = makeAvgNets(passParams)    
     passingParams = avgNets
 
     passingParamsRepeated = repeatSubarray(passingParams, 5,16)#repeat each parameter set (network) of 5 cells 16 times
@@ -226,6 +226,8 @@ if choice == 'y':
     print("number of cells from LV2 to use:",LV2passnumber)
     #make a list of the freqs to make event times for, and the event times:
     eventTimes, SCfreqs = makeEventTimes(passingParamsRepeated.shape[1],seed,'LV3')# takes the number of unique cells. return 16 synaptic inputs (spike times) for each passing cell. there are N*16 number of freqs then.
+
+    np.savetxt(os.path.join("output","LV3","Avg",'SCfreqs'),SCfreqs)
 
     ET = pd.DataFrame(data = eventTimes)
     ET.to_pickle(os.path.join("input","LV3","Avg",eventTimesFileName + ".pkl"))
@@ -258,3 +260,4 @@ if choice == 'y':
     uniqueNetPass = [1 if (np.any(netPass[i:i+16] == 1)) else 0 for i in range(0,len(netPass),16)]# mark 1 if any networks in a set of 16 passed (because it's actually the same net)
     netPassNo = uniqueNetPass.count(1)
     print("#networks tested = %d\n#networks passed = %d" %(b/16/5,netPassNo))
+"""

@@ -21,14 +21,14 @@ printLV2Voltages(Voltages[:,:endIDX],RejectionResults[:,:endIDX],"LV2 Voltages -
 #Voltages = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\VsomaControl.pkl')).T
 #printNetVoltages(Voltages[:,:endIDX],RejectionResults[:,:endIDX],"Network Voltages - Control")
 #np.array(pd.read_pickle(os.path.join("output","LV3", "passParamsRepeat"+ ".pkl")))
-Voltages = np.array(pd.read_pickle(os.path.join("output","LV3","VsomaControl.pkl"))).T
-RejectionResults = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
-printNetVoltages(Voltages,RejectionResults,"Network Voltages - Control")
+Voltages = np.array(pd.read_pickle(os.path.join("output","LV3","AVG","VsomaControl.pkl"))).T
+RejectionResults = np.loadtxt(os.path.join("output","LV3","AVG","LV3RejectionResults.txt"))
+printNetVoltages(Voltages,RejectionResults,"Network Voltages - Control - AVG")
 
 
 #Voltages = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\VsomaTEA.pkl')).T
 #printNetVoltages(Voltages[:,:endIDX],RejectionResults[:,:endIDX],"Network Voltages - TEA")
-Voltages = np.array(pd.read_pickle(os.path.join("output","LV3","VsomaTEA.pkl"))).T
+Voltages = np.array(pd.read_pickle(os.path.join("output","LV3","AVG","VsomaTEA.pkl"))).T
 
-printNetVoltages(Voltages,RejectionResults,"Network Voltages - TEA")
+printNetVoltages(Voltages,RejectionResults,"Network Voltages - TEA - AVG")
 

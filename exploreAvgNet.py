@@ -16,15 +16,15 @@ passParamsAVG = getEveryFirstNet(LV3passParamsAVG[:,passIdxsAVG])
 
 
 #get the nonaveraged networks which pass
-LV3passParamsOG = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\passParamsRepeat.pkl'))#the set used to make the average params
+LV3passParams = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\passParamsRepeat.pkl'))#the set used to make the average params
 coded = np.loadtxt(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\LV3RejectionResults.txt')
 passIdxs,failIdxs,allIdxs = getPassIdxs(coded)
-passParams = getEveryFirstNet(LV3passParamsOG[:,passIdxs])
+passParams = getEveryFirstNet(LV3passParams[:,passIdxs])
 
 #get the averaged networks which fail
 failParamsAVG = getEveryFirstNet(LV3passParamsAVG[:,failIdxsAVG])
 #get the nonaveraged networks which fail
-failParams = getEveryFirstNet(LV3passParamsOG[:,failIdxs])
+failParams = getEveryFirstNet(LV3passParams[:,failIdxs])
 #compare the ranges of the failing networks with the nonfailing networks
 
 allIdxsAVG#this is the 1 or 0 for every network at every frequency, 22240 recordings that form 278 networks, 1 if passed, 0 if failed

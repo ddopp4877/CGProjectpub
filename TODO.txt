@@ -23,3 +23,22 @@
 #add something for visualizing currents
 #make raster plot into a function
 #TEA responses almost all have spikes after the large burst, this is not very like what is in the literature
+# plot conductance labels on x axis, and LC number on the y axis, and each dot is a standardized parameter
+# plot the electrophysiological feature value vs the parameter as it is changed from its min to max, then fit a polynomial to it. the derivative poly is a measure of the model's sensitivity to changes in that parameter.
+# this can also be done for the network, see https://www.jneurosci.org/content/29/17/5573
+
+
+
+#########VALIDATTION CHECKS##############
+#rerun LV2 so without an active neurite (gleak only) so we can see how many pass lv2 without it
+#a validation check for the use of the restricted range. rerun everything and show that (probably) next to no cells pass lv2 or 3. ideally, you rerun for both lv1restricted and lv2restricted to test
+
+
+#####
+frequency gets rounded in making the event times, so find a way to use this instead of the scfrequencies which make it.
+
+
+### Q's
+https://www.jneurosci.org/content/29/17/5573
+mention that "For instance, having subunits of multiple channel types under the control of a common transcription factor might be simpler than independent transcriptional control of each channel type. This could result in different subunits being expressed in fixed ratios. Thus, the presence of correlations between conductances does not automatically imply that these correlations are required for proper electrophysiological behavior.'
+Do we have a way to show which interpretation would be more consistent with model and lab data?

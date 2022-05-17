@@ -6,16 +6,72 @@ import seaborn as sns
 import math
 from modules.makeParams import getNetIDX; sns.set_theme()
 from matplotlib.ticker import FuncFormatter
-from matplotlib.backends.backend_pdf import PdfPages
+
 #import matplotlib
 #matplotlib.use('Agg')# get some memory error with printing to pdf if this backend isn't used.
 import matplotlib.pyplot as plt
-
+from matplotlib.backends.backend_pdf import PdfPages
 from scipy import stats
 import pandas as pd
 from modules.makeParams import *
 
+def plotRaster(mappedIdxs,freqsnonavgpassing,filename = 'cellIdsfreq.png'):#get the arguments from getRasterData()
+    
+    allIds = []
+    for i in range(0,len(mappedIdxs),5):
+        if np.all(mappedIdxs[i:i+10] == mappedIdxs[i]):
+            allIds.append(mappedIdxs[i])
+    allIds = np.array(allIds)
+    allIds = np.unique(allIds)
 
+
+    fig, ax = plt.subplots(figsize=(30,6))
+    plt.scatter(mappedIdxs,freqsnonavgpassing,s=2)
+
+
+    ax.set_yticks(np.arange(16,32))
+    ax.set_xticks(allIds,allIds,fontsize = 8,rotation = 90)
+
+
+    axin1 = ax.inset_axes([0.2,-0.012,0,0.95])
+    axin1.set_yticks(np.arange(2,34,2),np.arange(16,32),fontsize =9)
+    axin1.set_xticks([])
+
+
+    axin2 = ax.inset_axes([0.4,-0.012,0,0.95])
+    axin2.set_yticks(np.arange(2,34,2),np.arange(16,32),fontsize =9)
+    axin2.set_xticks([])
+
+    axin3 = ax.inset_axes([0.6,-0.012,0,0.95])
+    axin3.set_yticks(np.arange(2,34,2),np.arange(16,32),fontsize =9)
+    axin3.set_xticks([])
+
+
+    axin4 = ax.inset_axes([0.8,-0.012,0,0.95])
+    axin4.set_yticks(np.arange(2,34,2),np.arange(16,32),fontsize =9)
+    axin4.set_xticks([])
+
+    plt.vlines(allIds,ymax=31,ymin=16,color = 'red',linewidths=0.3)
+    plt.xlabel('network ID')
+    plt.ylabel('SCfreq')
+    plt.savefig(filename,dpi = 500)
+    print('file saved as %s' %(filename))
+    plt.show()
+
+
+def getRasterData(coded,SCfreqs):#coded is rejection results coded, second argument is SCfreqs file in the same output folder
+    #get the passing network indices
+    passnetIDs,passnetIDXs = getpassingNetIDXs(coded)#
+    #get the frequencies at the passing network indicies
+    [a,b] = coded.shape
+    netPassI = np.array([1 if(np.all(coded[:,i:i+5]==1)) else 0 for i in range(0,b,5)])# mark 1 if all cells in a net passed#11200
+    netPassIdxs = np.repeat(netPassI,5)#repeat so that each index is the same for all the cells in a single network, back to 56000
+    netPassIdxs = np.where(netPassIdxs==1)[0]#find where in the array of 56000 passing+nonpassing where the whole network passes
+    freqsnonavgpassing = SCfreqs[netPassIdxs]
+    
+    #change them to be indexed for the raster
+    mappedIDxs,IDxs = mapping(passnetIDXs)
+    return mappedIDxs,freqsnonavgpassing
 
 
 
@@ -24,7 +80,7 @@ def getpassingNetIDXs(coded):#each network id is created for each cell in that n
     cellids = np.arange(0,int((coded.shape)[1]/5/16))
     netids = np.repeat(cellids,5*16)
     codedwNets = np.vstack((coded,netids))
-    passnetIDs =np.array([int(codedwNets[a,i]) if (np.all(codedwNets[:a,i:i+5]==1)) else -1 for i in range(0,b,5)])#list of cellids of passing nets, 5x less than all traces 56000
+    passnetIDs =np.array([int(codedwNets[a,i]) if (np.all(coded[:,i:i+5]==1)) else -1 for i in range(0,b,5)])#list of cellids of passing nets, 5x less than all traces 56000
     passnetIDs = np.repeat(passnetIDs,5)
     passnetIDXs = passnetIDs[np.where(passnetIDs != -1)[0]]#just the passing idxs from the original 56000
     return passnetIDs,passnetIDXs
@@ -32,30 +88,30 @@ def getpassingNetIDXs(coded):#each network id is created for each cell in that n
 
 def mapping(passnetIDXs):#run getpassingNetIDXs to get passnetIDXs
     mappedIdxs = np.array([0])
-    ogIDxs = []
+    IDxs = []
     j=0
     for i in range(len(passnetIDXs)-1):
         
         if passnetIDXs[i] == passnetIDXs[i+1]:
             mappedIdxs = np.append(mappedIdxs,j)
-            ogIDxs.append(passnetIDXs[i])
+            IDxs.append(passnetIDXs[i])
         else:
             mappedIdxs = np.append(mappedIdxs,j)
-            ogIDxs.append(passnetIDXs[i])
+            IDxs.append(passnetIDXs[i])
             j+=1
     mappedIdxs = mappedIdxs[1:]#remove the first item since it is just to get the array started
     mappedIdxs = np.append(mappedIdxs,mappedIdxs[i])#repeat the last item since we have to stop early
-    ogIDxs.append(ogIDxs[len(ogIDxs)-1])
-    return mappedIdxs,ogIDxs
+    IDxs.append(IDxs[len(IDxs)-1])
+    return mappedIdxs,IDxs
 
 #go from the passidxs, to the index when we have all cells including nonpassing:
 #passnetIDXs are the indices of the passnetIDs that passed, but /80, so
-def unMap(mappedIdxs,ogIDxs,passnetIDs,netID):#mapped is the result of mapping(), ogIDxs is the second list returned from mapping(), netID is the network of interest in the raster
+def unMap(mappedIdxs,IDxs,passnetIDs,netID):#mapped is the result of mapping(), IDxs is the second list returned from mapping(), netID is the network of interest in the raster
     passnetIndex = np.where(mappedIdxs == netID)[0]#index of this network in the mapped indices
-    passnetIndex = np.array(ogIDxs)[passnetIndex][0] #network id of the network which passed in the passnetIDs list
+    passnetIndex = np.array(IDxs)[passnetIndex][0] #network id of the network which passed in the passnetIDs list
     netID = passnetIndex *80# the index of the cell in the passnetIDs
-    OGneworkID = passnetIDs[netID] #the id of the network in the original data. for example, network 2 in the mapped data is network 6 in the original
-    return OGneworkID
+    neworkID = passnetIDs[netID] #the id of the network in the original data. for example, network 2 in the mapped data is network 6 in the original
+    return neworkID
 
 
 def getPassIdxs(codedArray):
@@ -235,7 +291,7 @@ def plotNet(array,NetNo,SCfreq):
     return fig
 
 def plotCorrelogram(params,paramsList,title = 'no title'):
-    plot = plt.figure(figsize=(10,5))
+    plot = plt.figure(figsize=(20,10))
     Corrs = np.corrcoef(params)
     ax = sns.heatmap(Corrs,xticklabels=paramsList,yticklabels = paramsList,vmin=-0.5,vmax=0.5,annot=True)
     
