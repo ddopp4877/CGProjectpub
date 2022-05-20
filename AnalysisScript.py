@@ -7,13 +7,8 @@ import time
 from scipy.stats import kurtosis
 
 print('test') 
-
-archivedPath = os.path.join("..","CGresults","may13_22")#folder is outside of CGProjectpub
-coded = np.loadtxt(os.path.join(archivedPath,"output","LV3","LV3RejectionResults.txt"))
-SCfreqsnonavg = np.loadtxt(os.path.join(archivedPath,"output","LV3","SCfreqs"))
-mappedIDxs,freqsnonavgpassing = getRasterData(coded,SCfreqsnonavg)
-plotRaster(mappedIDxs,freqsnonavgpassing)
-
-#plt.savefig('non average passing')
+RejectionResults = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
+critList = LV3CritList()
+plotFailCrit(RejectionResults,critList)
 
 plt.show()

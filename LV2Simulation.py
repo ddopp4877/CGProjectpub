@@ -32,7 +32,7 @@ controlorTEA = sys.argv[5]
 
 eventTimes = np.array(pd.read_pickle(os.path.join("input","LV2",eventtimesfilename + ".pkl")))
 LV1PassParams =  np.array(pd.read_pickle(os.path.join("input","LV2", passparamsfilename+ ".pkl")))
-Trials = (LV1PassParams.shape)[1]
+
 UNparamsNO = (np.unique(LV1PassParams,axis=1)).shape[1]
 
 h.load_file('stdrun.hoc') #so you can use run command
@@ -40,7 +40,7 @@ h.load_file('stdrun.hoc') #so you can use run command
 #make a list of LargeCells then change their parameters to be random
 
 params, LCs = makeRandomCellsLV2(UNparamsNO,seed,LV1PassParams,controlorTEA)
-
+Trials = len(LCs)
 #read in event times, turn it into a vector, remove the zeros, play the vector as the source of the vectstim, which is the source of the netcon to the exp2syn target
 
 #synGain = 0.16
@@ -78,7 +78,7 @@ gc.collect()
 #only need to save params and time once, they dont change for TEA case
 if controlorTEA == "Control":
     Params = pd.DataFrame(data = params,dtype = 'float32')
-    Params.to_pickle(os.path.join("output","LV2",passparamsfilename + controlorTEA + ".pkl"))
+    Params.to_pickle(os.path.join("output","LV2",passparamsfilename + "Repeat" + controlorTEA + ".pkl"))
     dt = 0.2
     simTime = np.arange(0,(np.array(V).shape)[1]*dt,dt)
     np.savetxt(os.path.join("output","LV2","time.txt"),simTime)

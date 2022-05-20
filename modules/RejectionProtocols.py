@@ -57,7 +57,8 @@ def CalcPeaks(t,v,Baselines):
 def CalcSPB(v):
     SPB = [] 
     for i in range(0, (v.shape)[1]):
-        peaks, _ = find_peaks(v[:,i],distance=90, height = -35)
+        peaks, _ = find_peaks(v[:,i],distance=90, height = -35,prominence=(2,None))
+        #peaks, _ = find_peaks(v[:,0],distance=120, height = -35,prominence=(2,None))
         SPB.append(len(peaks))
     return np.array(SPB)
 
@@ -87,7 +88,7 @@ def LV2RejectionProtocol(v,vTEA):
     Areas,Peaks,SPB = LV2RejectionCalculations(t,v)
     AreasTEA,PeaksTEA,SPBTEA = LV2RejectionCalculations(t,vTEA)
     TEAAreaLim = Areas*1.2
-    TEAPeaksLim = Peaks*1.3
+    TEAPeaksLim = Peaks*1.1
     TEASPBLim = SPB*1.5
 
         # join the raw data for return
@@ -118,7 +119,7 @@ def LV2RejectionProtocol(v,vTEA):
     taggedArray = np.concatenate(args, axis = 0)
 
     #find the IDXs that pass everything
-    passingIdxs = PeaksTEAtagged*AreasTEAtagged*SPBtagged*Peakstagged*Areastagged
+    passingIdxs = PeaksTEAtagged*AreasTEAtagged*SPBTEAtagged*SPBtagged*Peakstagged*Areastagged
     
     return taggedArray, rawArray, passingIdxs, critList
 
@@ -149,7 +150,7 @@ def LV3RejectionProtocol(v,vTEA):
 
     passingIdxs =  passingIdxs*xcorrstagged*xcorrsTEAtagged
 
-    args = [coded, xcorrstagged.reshape(1,-1), xcorrsTEAtagged.reshape(1,-1),passingIdxs.reshape(1,-1)]
+    args = [coded, xcorrstagged.reshape(1,-1), xcorrsTEAtagged.reshape(1,-1)]
     taggedArray = np.concatenate(args,axis=0)
     critList.append(["xcorrs","xcorrsTEA","AllPass"])
     

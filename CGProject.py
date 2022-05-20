@@ -14,8 +14,8 @@ import tracemalloc
 
 totalStart = time.time()
 
-seed = "222"
-LV1Trials = "10000"
+seed = "32165156"
+LV1Trials = "200"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -23,7 +23,7 @@ passParamsFileName = "passParams"
 passParamsFileNameRepeat = "passParamsRepeat"
 eventTimesFileName = "EventTimes"
 
-"""
+
 #start LV1timer
 start = time.time()
 
@@ -50,18 +50,18 @@ passingIdxs = np.where(Idxs ==1)
 passingParams = params[:,passingIdxs[0]]
 passParamsLV1 = pd.DataFrame(data = passingParams)
 passParamsLV1.to_pickle(os.path.join("output","LV1",passParamsFileName + ".pkl"))
+passParamsLV1.to_pickle(os.path.join("input","LV2",passParamsFileName + ".pkl"))
 print("Params = %d" %((params.shape)[1]))
 print("Passing Params = %d" %((passingParams.shape)[1]))
 
-#create and save a file of the passing parameters repeated 16 times for each freq, for lv2 to use:
-LV1PassParamsRepeat = np.repeat(passingParams,16,axis=1)# because testing at 16-32 hz
-LV1PassParamsRepeat = pd.DataFrame(LV1PassParamsRepeat)
-LV1PassParamsRepeat.to_pickle(os.path.join("input","LV2",passParamsFileNameRepeat + ".pkl"))
+#create and save a file of the passing parameters for lv2 to use:
+
+
 
 ### create an array of event times, and save it to a file for lv2simulation to read and use for the source of the netcon that is used in each synapse.
 #the event times will be from 16-32 Hz and it will be for each netcon, and for about 30 long, pad with zeros. so shape is (lv1passnumber, 30)
 LV1passnumber = (passingParams.shape)[1]
-print(LV1passnumber)
+
 
 
 #make a list of the freqs to make event times for:
@@ -71,13 +71,13 @@ if LV1passnumber <1:
 eventTimes, SCfreqs = makeEventTimes(LV1passnumber,seed)
 ET = pd.DataFrame(data = eventTimes)
 ET.to_pickle(os.path.join("input","LV2",eventTimesFileName + ".pkl"))
-
+np.savetxt(os.path.join("output","LV2",'SCfreqs'),SCfreqs)
 #start LV2timer
 start = time.time()
 
 #LV2 control
 #output = subprocess.run(['mpiexec', '-n', '4', 'python', 'LV2Simulation.py', str(LV1passnumber), seed, VoltageFilename, passParamsFileNameRepeat, eventTimesFileName,"Control"],capture_output=True)
-output = subprocess.run(['python', 'LV2Simulation.py',seed, VoltageFilename, passParamsFileNameRepeat, eventTimesFileName,"Control"],capture_output=True)
+output = subprocess.run(['python', 'LV2Simulation.py',seed, VoltageFilename, passParamsFileName, eventTimesFileName,"Control"],capture_output=True)
 
 print(output)
 end = time.time()
@@ -86,7 +86,7 @@ print("LV2 runtime = %.2f" %(end - start))
 #rerun with TEA :
 start = time.time()
 #output = subprocess.run(['mpiexec', '-n', '1', 'python', 'LV2Simulation.py', str(LV1passnumber), seed, VoltageFilenameTEA, passParamsFileNameRepeat, eventTimesFileName,"TEA"],capture_output=True)
-output = subprocess.run(['python', 'LV2Simulation.py', seed, VoltageFilename, passParamsFileNameRepeat, eventTimesFileName,"TEA"],capture_output=True)
+output = subprocess.run(['python', 'LV2Simulation.py', seed, VoltageFilename, passParamsFileName, eventTimesFileName,"TEA"],capture_output=True)
 
 print(output)
 end = time.time()
@@ -95,10 +95,11 @@ print("LV2 TEA runtime = %.2f" %(end - start))
 
 #LV2RejectionProtocol:
 
-#Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
-#VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
-Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
-VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
+Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
+VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
+#may save space for large data sets
+#Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
+#VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
 coded, Raw, Idxs,critList = LV2RejectionProtocol(Vsoma,VsomaTEA )# coded, values, and indexes
 gc.collect()
 np.savetxt(os.path.join("output","LV2","LV2RejectionResults.txt"),coded)
@@ -114,12 +115,17 @@ passParamsLV2.to_pickle(os.path.join("output","LV2",passParamsFileName + ".pkl")
 print("Params = %d" %((params.shape)[1]))
 print("LV2 Passing Params = %d" %((passingParams.shape)[1]))
 
+
+
 # LV3: 
 # put the passing cells of LV2 into sets of 5. then repeat the params 16 times, give to LV3 code. LV3 code will connect all the sizs to each other in a network, and lc12 and lc45 then run.
 
 #make passing params of lv2 a multiple of 5, then repeat each network 16 times, one for each SCfreq
+
+
 if (passingParams.shape)[1] < 5:
     print("not enough cells to make a network")
+    quit()
 else:
 
     passingParams = passingParams[:,0:int(((passingParams.shape)[1]) - ((passingParams.shape)[1] % 5))]#make sure it has trials number that is a multiple of five
@@ -260,4 +266,3 @@ if choice == 'y':
     uniqueNetPass = [1 if (np.any(netPass[i:i+16] == 1)) else 0 for i in range(0,len(netPass),16)]# mark 1 if any networks in a set of 16 passed (because it's actually the same net)
     netPassNo = uniqueNetPass.count(1)
     print("#networks tested = %d\n#networks passed = %d" %(b/16/5,netPassNo))
-"""

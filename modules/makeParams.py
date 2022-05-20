@@ -42,8 +42,10 @@ def convertfilestoH5():
             data = np.loadtxt(file)
         if file.endswith(".pkl"):
             data  = np.array(pd.read_pickle(file),dtype = 'float32').T
-
+        if file.endswith(".pkl.npy"):
+            data = np.load(file,allow_pickle=True).T
         filename  = file.split(".")[0]#get the filename without the extension  
+        print(filename)
         if not file.endswith(".hdf5"):
             with h5py.File(filename +'.hdf5', 'w') as f:
                 print("writing...")
@@ -53,6 +55,7 @@ def convertResultstoH5(folderList,subfolderList):# run in the project directory
 
     for folder in folderList:
         for subfolder in subfolderList:
+            print(os.path.join(os.getcwd(),folder,subfolder))
             os.chdir(os.path.join(os.getcwd(),folder,subfolder))     
             convertfilestoH5()
             os.chdir("..")
@@ -227,7 +230,7 @@ def LV1ParamsDict():
 
 def LV1ParamsDictRestricted():
         params = { 
-          'soma_leak':      [6.2e-5,20e-5],
+          'soma_leak':      [6.2e-5,40e-5],
           'soma_a2':        [17.2e-5,190e-5],
           'soma_bkkca':     [7.9e-4,61e-4],
           'soma_skkca':     [88e-5,200e-5],
@@ -236,7 +239,7 @@ def LV1ParamsDictRestricted():
           'soma_cal':       [6.5e-5,13e-5],
           'soma_cat':       [16e-5,31e-5],
           'soma_caN':       [7e-5,15e-5],
-          'soma_nap2':      [7.6e-5,35e-5],
+          'soma_nap2':      [10e-5,35e-5],
           'neurite_leak':   [6.2e-5,97e-5]
         }
         return params
@@ -323,15 +326,17 @@ def makeRandomCellsLV2(*args):
         Trials = args[0]# because testing at 16-32 hz
         seed = args[1]
         #make the random parameter arrays
-        LV1Params = np.repeat(args[2],16,axis=1)# because testing at 16-32 hz
+        LV1Params =  args[2]
         LV2Params = makeRandomParams(args[0],seed, LV2ParamsDictRestricted())#expects the number of unique parameters
-        LV2Params = np.repeat(LV2Params,16,axis=1)
-
-        #make the same number of cells, with default initialization
-        LCs = makeCells(Trials*16, LargeCellLV2)
+        
         [a,b] = LV2Params.shape
         LV1Params = LV1Params[:,:b]#in case they are not the same size
         params = np.vstack((LV1Params,LV2Params))
+        params = np.repeat(params,16,axis=1)
+        
+        #make the same number of cells, with default initialization
+        LCs = makeCells(Trials*16, LargeCellLV2)
+               
         
         for i in range(0,Trials*16):
 
