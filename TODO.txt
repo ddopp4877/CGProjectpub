@@ -32,7 +32,7 @@
 #########VALIDATTION CHECKS##############
 #rerun LV2 so without an active neurite (gleak only) so we can see how many pass lv2 without it
 #a validation check for the use of the restricted range. rerun everything and show that (probably) next to no cells pass lv2 or 3. ideally, you rerun for both lv1restricted and lv2restricted to test
-
+# rerun using stimulus protocol to see if/how the results differ. This is not necessary since we weren't using it to begin with, but it is a good comparison with Lane's work
 
 #####
 frequency gets rounded in making the event times, so find a way to use this instead of the scfrequencies which make it.
