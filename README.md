@@ -47,7 +47,7 @@ CGenv is also included in the github, but is probably best to set up your own en
 
 
 the output files are a mix of txt and pkl. If you want them all to be converted to hdf5 instead, call the function:
-convertResultstoH5(folderList(),subfolderList()) while in the AnalysisScript.py file
+convertResultstoH5(folderList(),subfolderList()) while in the AnalysisScript.py file. (can't use with Avg folder in lv3 though so have to remove it first)
 
 to verify everything worked, it worth using 'Checkruns.ipynb' to make sure the input and output files produce the number of passing cells/networks that is expected
 then, print all the  networks and verify that ones marked passing look like they should have passed
