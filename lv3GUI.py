@@ -11,8 +11,8 @@ from modules.RejectionProtocols import *
 import sys
 import pandas as pd
 from itertools import combinations
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, 
-NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+
 
 if platform.system() == 'Linux':
     h.nrn_load_dll(os.path.join("modFiles/x86_64/.libs/libnrnmech.so"))
@@ -38,11 +38,11 @@ teaBoxLabelCol = 6
 
 
 
-#eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
-#LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
+eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
+LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
 
-eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\EventTimes.pkl'))
-LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\passParamsRepeat.pkl'))
+#eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\EventTimes.pkl'))
+#LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\passParamsRepeat.pkl'))
 
 Trials = (LV2PassParams.shape)[1]
 subTrials = 5
@@ -141,7 +141,7 @@ class Network:
 
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import *
+from matplotlib.widgets import Slider
 import tkinter as tk
 
 class Window:
@@ -166,6 +166,7 @@ class Window:
         self.TEABoxesLabel = tk.Label(master, text = "TEA" ,font = self.bold25).grid(row = 0,column = teaBoxCol, pady = 10)
         
         self.usedParams = myNet.myNetControl.params
+        self.usedParamsTEA = myNet.myNetTEA.params
         val1 = myNet.myNetControl.LCs[0].siz.g_leak
         val2 = myNet.myNetControl.LCs[0].siz.g_nasiz
         val3 = myNet.myNetControl.LCs[0].siz.g_kdsiz
@@ -173,6 +174,8 @@ class Window:
         ar2 = np.ones((3,5))
         self.nextParams = np.multiply(ar1,ar2)
         self.usedParams = np.vstack((self.usedParams,self.nextParams))
+        self.usedParamsTEA = np.vstack((self.usedParamsTEA,self.nextParams))
+        
         for i in range(0,len(self.myVars)):
 
             self.allSpins.append(MySpinBox(master,self.usedParams[i,0],self.myVarsValues[i][1],1e-5,self.myVars[i],i+1,boxColControl,0,2,"myNetControl"))
@@ -182,7 +185,7 @@ class Window:
             self.rangeLabel = tk.Label(master, text = self.controlVarText).grid(row = i+1,column = boxColControlLabelRange,padx=5)
 
            
-            self.allSpinsTEA.append(MySpinBox(master,self.usedParams[i,0],self.myVarsValuesTEA[i][1],1e-5,self.myVarsTEA[i],i+1,teaBoxCol,0,10,"myNetTEA"))
+            self.allSpinsTEA.append(MySpinBox(master,self.usedParamsTEA[i,0],self.myVarsValuesTEA[i][1],1e-5,self.myVarsTEA[i],i+1,teaBoxCol,0,10,"myNetTEA"))
             self.teaVarText = '({0:>.5f}   -   {1:>.5f})'.format(self.myVarsValuesTEA[i][0],self.myVarsValuesTEA[i][1])
             self.rangeLabel = tk.Label(master, text = self.teaVarText).grid(row = i+1,column = teaBoxLabelRangeCol,padx = 5)
             
@@ -247,10 +250,11 @@ class MySpinBox():
 
 
 class sliderVars:
-    def __init__(self,start,end,step):
+    def __init__(self,start,end,step,initval):
         self.start = start
         self.end = end
         self.step = step
+        self.initval = initval
 
 
 class NetPlot:
@@ -271,9 +275,9 @@ class NetPlot:
         
 
         #create Slider objects
-        self.synGainSlider = self.mySliders(0.05,2,0.01,0.09,"synGain")#start, end, step, yaxis location, labelname
-        self.somaRSlider = self.mySliders(1.56,6,0.01,0.05,"somaR")
-        self.sizRSlider = self.mySliders(1,300,1,0.01,"sizR")
+        self.synGainSlider = self.mySliders(0.05,2,0.01,self.myNetControl.synGain,0.09,"synGain")#start, end, step,initval, yaxis location, labelname
+        self.somaRSlider = self.mySliders(1.56,6,0.01,self.myNetControl.RSOMA,0.05,"somaR")
+        self.sizRSlider = self.mySliders(1,300,1,self.myNetControl.RSIZ,0.01,"sizR")
 
         #set a callback for the slider params to rerun and print on change
         self.synGainSlider.mySlider.on_changed( self.updateSyn)
@@ -282,9 +286,9 @@ class NetPlot:
         
         self.TEAPlot = self.plotClass("TEA",self.simTime,self.plotArrayTEA)
                 #create Slider objects
-        self.synGainSliderTEA = self.mySliders(0.05,2,0.01,0.09,"synGain")#start, end, step, yaxis location, labelname
-        self.somaRSliderTEA = self.mySliders(1.56,6,0.01,0.05,"somaR")
-        self.sizRSliderTEA = self.mySliders(1,300,1,0.01,"sizR")
+        self.synGainSliderTEA = self.mySliders(0.05,2,0.01,self.myNetTEA.synGain,0.09,"synGain")#start, end, step,initval, yaxis location, labelname
+        self.somaRSliderTEA = self.mySliders(1.56,6,0.01,self.myNetTEA.RSOMA,0.05,"somaR")
+        self.sizRSliderTEA = self.mySliders(1,300,1,self.myNetTEA.RSIZ,0.01,"sizR")
 
         #set a callback for the slider params to rerun and print on change
         self.synGainSliderTEA.mySlider.on_changed( self.updateSynTEA)
@@ -294,10 +298,10 @@ class NetPlot:
 
 
     class mySliders:
-        def __init__(self,start,end,step,yaxis,mylabel):
-            self.slidernums = sliderVars(start,end,step)
+        def __init__(self,start,end,step,initval,yaxis,mylabel):
+            self.slidernums = sliderVars(start,end,step,initval)
             self.ax_slide1 = plt.axes([0.15, yaxis, 0.65, 0.03])
-            self.mySlider = Slider(self.ax_slide1,label = mylabel,valmin = self.slidernums.start,valmax = self.slidernums.end,valinit=self.slidernums.start,valstep=self.slidernums.step,orientation='horizontal')
+            self.mySlider = Slider(self.ax_slide1,label = mylabel,valmin = self.slidernums.start,valmax = self.slidernums.end,valinit=self.slidernums.initval,valstep=self.slidernums.step,orientation='horizontal')
 
     
 
@@ -358,16 +362,31 @@ class NetPlot:
             elif(controlorTEA== "TEA"):
                 self.canvas.get_tk_widget().grid(column = plotCols, row=19,rowspan=19,padx = 180,pady=10)
 
-netNo,FreqNo = 655,16 #network number ?, tested at ? Hz
+
+
+
+def callback():
+    if tk.messagebox.askokcancel("Quit", "Do you really wish to quit?"):
+        root.destroy()
+        root.quit()
+    
+
+netNo,FreqNo = 1,19 #network number ?, tested at ? Hz
 startNo = getNetIDX(netNo,FreqNo)
 
 
 root = tk.Tk()
 myNet = NetPlot(startNo)
 window = Window(root)
-
-
+root.protocol("WM_DELETE_WINDOW", callback)
 root.mainloop()
+
+
+
+
+
+
+
 
 
 

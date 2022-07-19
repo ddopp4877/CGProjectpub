@@ -13,9 +13,9 @@ import gc
 import tracemalloc
 
 totalStart = time.time()
-"""
+
 seed = "32165156"
-LV1Trials = "6000"
+LV1Trials = "20"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -28,7 +28,7 @@ eventTimesFileName = "EventTimes"
 start = time.time()
 
 #LV1
-#output = subprocess.run(['mpiexec', '-n', '1', 'python', 'LV1Simulation.py', LV1Trials, seed, VoltageFilename, ParamsFilename],capture_output=True)
+
 output = subprocess.run(['python', 'LV1Simulation.py', LV1Trials, seed, VoltageFilename, ParamsFilename],capture_output=True)
 print(output)
 end = time.time()
@@ -80,7 +80,7 @@ np.savetxt(os.path.join("output","LV2",'SCfreqs'),SCfreqs)
 start = time.time()
 
 #LV2 control
-#output = subprocess.run(['mpiexec', '-n', '4', 'python', 'LV2Simulation.py', str(LV1passnumber), seed, VoltageFilename, passParamsFileNameRepeat, eventTimesFileName,"Control"],capture_output=True)
+
 output = subprocess.run(['python', 'LV2Simulation.py',seed, VoltageFilename, passParamsFileName, eventTimesFileName,"Control"],capture_output=True)
 
 print(output)
@@ -89,7 +89,6 @@ print("LV2 runtime = %.2f" %(end - start))
 
 #rerun with TEA :
 start = time.time()
-#output = subprocess.run(['mpiexec', '-n', '1', 'python', 'LV2Simulation.py', str(LV1passnumber), seed, VoltageFilenameTEA, passParamsFileNameRepeat, eventTimesFileName,"TEA"],capture_output=True)
 output = subprocess.run(['python', 'LV2Simulation.py', seed, VoltageFilename, passParamsFileName, eventTimesFileName,"TEA"],capture_output=True)
 
 print(output)
@@ -99,9 +98,7 @@ print("LV2 TEA runtime = %.2f" %(end - start))
 
 #LV2RejectionProtocol:
 
-#Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
-#VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
-#may save space for large data sets
+#pkl.npy may save space for large data sets
 Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
 VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
 coded, Raw, Idxs,critList = LV2RejectionProtocol(Vsoma,VsomaTEA )# coded, values, and indexes
@@ -214,9 +211,8 @@ if choice == 'y':
     #make averaged nets
     
     LV3passParams = np.array(pd.read_pickle(os.path.join("output","LV3","passParamsRepeat.pkl")))
-    #LV3passParams = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\passParamsRepeat.pkl'))
     coded = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
-    #coded = np.loadtxt(r'C:\Users\ddopp\source\repos\CGresults\notAVG\output\LV3\LV3RejectionResults.txt')
+
     passIdxs,failIdxs,codedPassexpanded = getPassIdxs(coded)
     passParams = getEveryFirstNet(LV3passParams[:,passIdxs])
     
@@ -270,4 +266,3 @@ if choice == 'y':
     uniqueNetPass = [1 if (np.any(netPass[i:i+16] == 1)) else 0 for i in range(0,len(netPass),16)]# mark 1 if any networks in a set of 16 passed (because it's actually the same net)
     netPassNo = uniqueNetPass.count(1)
     print("#networks tested = %d\n#networks passed = %d" %(b/16/5,netPassNo))
-"""

@@ -183,7 +183,7 @@ def repeatSubarray(array, subSize,repeatNo):#could not figure out how to get np.
 def getSimTime(simData, dt=0.2):#2d array, rows are time steps columns are variables; expects numpy
     return np.arange(0,(simData.shape)[0]*dt,dt)
 
-def getNetIDX(netNo,SCfreq):
+def getNetIDX(netNo,SCfreq):#uses 1 indexing for the netNo
     return (netNo-1)*(16*5) + ((SCfreq - 16) *5)
 
 def getLV2CellIDX(cellNo,SCfreq):
