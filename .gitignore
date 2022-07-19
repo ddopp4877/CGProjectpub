@@ -3,7 +3,6 @@
 /.ipynb_checkpoints
 /output
 /modFiles/*.[co]
-/modFiles/*.[dll]
 .DS_Store
 *.pdf
 *.png
