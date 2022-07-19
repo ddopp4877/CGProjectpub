@@ -66,12 +66,12 @@ h.finitialize(-51)
 h.continuerun(2550)
 #h.continuerun(2000)
 
-V = pd.DataFrame(data = v,dtype='float32')
-#V = np.array(v,dtype='float32')
+#V = pd.DataFrame(data = v,dtype='float32')
+V = np.array(v,dtype='float32')
 
 
-V.to_pickle(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"))
-#np.save(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"),V)
+#V.to_pickle(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl"))
+np.save(os.path.join("output","LV2",voutfilename + controlorTEA + ".pkl.npy"),V,allow_pickle=True)
 
 gc.collect()
 
@@ -79,6 +79,4 @@ gc.collect()
 if controlorTEA == "Control":
     Params = pd.DataFrame(data = params,dtype = 'float32')
     Params.to_pickle(os.path.join("output","LV2",passparamsfilename + "Repeat" + controlorTEA + ".pkl"))
-    dt = 0.2
-    simTime = np.arange(0,(np.array(V).shape)[1]*dt,dt)
-    np.savetxt(os.path.join("output","LV2","time.txt"),simTime)
+

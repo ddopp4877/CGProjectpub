@@ -13,9 +13,9 @@ import gc
 import tracemalloc
 
 totalStart = time.time()
-
+"""
 seed = "32165156"
-LV1Trials = "200"
+LV1Trials = "6000"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -68,10 +68,14 @@ LV1passnumber = (passingParams.shape)[1]
 if LV1passnumber <1:
    print("not enough cells passed LV1")
    quit()
+   
+
+
 eventTimes, SCfreqs = makeEventTimes(LV1passnumber,seed)
 ET = pd.DataFrame(data = eventTimes)
 ET.to_pickle(os.path.join("input","LV2",eventTimesFileName + ".pkl"))
 np.savetxt(os.path.join("output","LV2",'SCfreqs'),SCfreqs)
+
 #start LV2timer
 start = time.time()
 
@@ -95,11 +99,11 @@ print("LV2 TEA runtime = %.2f" %(end - start))
 
 #LV2RejectionProtocol:
 
-Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
-VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
+#Vsoma =np.array(pd.read_pickle(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl")),dtype='float32').T
+#VsomaTEA = np.array(pd.read_pickle(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl")),dtype='float32').T
 #may save space for large data sets
-#Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
-#VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
+Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
+VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
 coded, Raw, Idxs,critList = LV2RejectionProtocol(Vsoma,VsomaTEA )# coded, values, and indexes
 gc.collect()
 np.savetxt(os.path.join("output","LV2","LV2RejectionResults.txt"),coded)
@@ -266,3 +270,4 @@ if choice == 'y':
     uniqueNetPass = [1 if (np.any(netPass[i:i+16] == 1)) else 0 for i in range(0,len(netPass),16)]# mark 1 if any networks in a set of 16 passed (because it's actually the same net)
     netPassNo = uniqueNetPass.count(1)
     print("#networks tested = %d\n#networks passed = %d" %(b/16/5,netPassNo))
+"""

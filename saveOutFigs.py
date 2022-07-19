@@ -4,6 +4,10 @@ from modules.postAnalysis import printNetVoltages,printLV2Voltages
 import os
 import pandas as pd
 
+
+
+#don't forget to uncomment matplotlib.use('Agg') and matplotlib in postAnalysis if printing a large dataset
+
 endIDX = 2*16#20 per page so this is 16 pages
 #print all voltages to a pdf
 

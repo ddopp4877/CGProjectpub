@@ -7,8 +7,6 @@ import time
 from scipy.stats import kurtosis
 
 print('test') 
-RejectionResults = np.loadtxt(os.path.join("output","LV3","LV3RejectionResults.txt"))
-critList = LV3CritList()
-plotFailCrit(RejectionResults,critList)
+convertResultstoH5()
 
 plt.show()

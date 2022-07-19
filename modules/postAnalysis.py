@@ -7,8 +7,8 @@ import math
 from modules.makeParams import getNetIDX; sns.set_theme()
 from matplotlib.ticker import FuncFormatter
 
-#import matplotlib
-#matplotlib.use('Agg')# get some memory error with printing to pdf if this backend isn't used.
+import matplotlib
+matplotlib.use('Agg')# get some memory error with printing to pdf if this backend isn't used.
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import stats
