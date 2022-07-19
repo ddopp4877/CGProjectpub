@@ -58,6 +58,7 @@ class Network:
     def __init__(self, startNo,controlorTEA):
         netParams = LV2PassParams[:,startNo:startNo+5]
         params, LCs = makeCellsLV3(netParams,controlorTEA)
+        
         self.params = params
         self.LCs = LCs
 
@@ -174,18 +175,19 @@ class Window:
         ar2 = np.ones((3,5))
         self.nextParams = np.multiply(ar1,ar2)
         self.usedParams = np.vstack((self.usedParams,self.nextParams))
+        
         self.usedParamsTEA = np.vstack((self.usedParamsTEA,self.nextParams))
         
         for i in range(0,len(self.myVars)):
-
-            self.allSpins.append(MySpinBox(master,self.usedParams[i,0],self.myVarsValues[i][1],1e-5,self.myVars[i],i+1,boxColControl,0,2,"myNetControl"))
+            
+            self.allSpins.append(MySpinBox(master,self.usedParams[i,0],self.myVarsValues[i][1],1e-6,self.myVars[i],i+1,boxColControl,0,2,"myNetControl"))
             #self.controlVarText = tk.StringVar()
             self.controlVarText = '({0:>.5f}   -   {1:>.5f})'.format(self.myVarsValues[i][0],self.myVarsValues[i][1])
            
             self.rangeLabel = tk.Label(master, text = self.controlVarText).grid(row = i+1,column = boxColControlLabelRange,padx=5)
 
-           
-            self.allSpinsTEA.append(MySpinBox(master,self.usedParamsTEA[i,0],self.myVarsValuesTEA[i][1],1e-5,self.myVarsTEA[i],i+1,teaBoxCol,0,10,"myNetTEA"))
+            
+            self.allSpinsTEA.append(MySpinBox(master,self.usedParamsTEA[i,0],self.myVarsValuesTEA[i][1],1e-6,self.myVarsTEA[i],i+1,teaBoxCol,0,10,"myNetTEA"))
             self.teaVarText = '({0:>.5f}   -   {1:>.5f})'.format(self.myVarsValuesTEA[i][0],self.myVarsValuesTEA[i][1])
             self.rangeLabel = tk.Label(master, text = self.teaVarText).grid(row = i+1,column = teaBoxLabelRangeCol,padx = 5)
             
@@ -222,7 +224,7 @@ class MySpinBox():
     def display(self,event):
         self.value = self.spinbox.get()
         
-        for i in range(5):
+        for i in range(1):
             exec("%s = %f" %("myNet." + self.controlorTEA+ ".LCs["+str(i)+"]." + self.boxLabel,float(self.value)))
         
         if self.controlorTEA == "myNetControl":

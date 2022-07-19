@@ -388,6 +388,8 @@ def makeCellsLV3(LV2PassParams,controlorTEA):#the passparams file should be each
         Trials = (LV2PassParams.shape)[1]
         params = LV2PassParams
         LCs = makeCells(Trials, LargeCellLV2)
+
+
         for i in range(0,Trials):
 
             LCs[i].soma.g_leak =        params[0,i]
