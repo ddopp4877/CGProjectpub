@@ -70,7 +70,7 @@ PROCEDURE rate(v (mV)) {
 
 FUNCTION minffun(v(mV)) {
 	TABLE FROM -150 TO 150 WITH 500
-	minffun = 1/(1+exp((v+20.5)/-5.29))
+	minffun = 1/(1+exp((v+20.5)/-5.29)):numerator was 20.5
 }
 
 FUNCTION taumfun(v(mV)) {

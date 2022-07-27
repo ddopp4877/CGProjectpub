@@ -1,0 +1,685 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "cdce0cec",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import h5py\n",
+    "import shutil\n",
+    "import os\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import pickle\n",
+    "import matplotlib.pyplot as plt\n",
+    "from scipy import stats\n",
+    "from itertools import combinations\n",
+    "from scipy.stats import kurtosis\n",
+    "from scipy.spatial import distance\n",
+    "\n",
+    "#from modules.makeParams import *\n",
+    "#from modules.RejectionProtocols import *\n",
+    "from modules.postAnalysis import *\n",
+    "archivedPath = os.path.join(\"..\",\"CGresults\",\"may13_22\")#folder is outside of CGProjectpub\n",
+    "localPath = os.getcwd()\n",
+    "localPath"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "cacce49e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "archivedPath = os.path.join(\"..\",\"CGresults\",\"variable_Gsyn\")\n",
+    "LV3Params =  np.array(pd.read_pickle(os.path.join(archivedPath,\"LV3\",\"passParamsRepeat.pkl\")))\n",
+    "coded = np.loadtxt(os.path.join(archivedPath,\"LV3\",\"LV3RejectionResults.txt\"))\n",
+    "passIdxs,failIdxs,allIdxs = getPassIdxs(coded)\n",
+    "params = LV3Params[:,passIdxs]\n",
+    "#passParams = getEveryFirstNet(LV3passParams[:,passIdxs])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "670115d4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "29e42c3c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:],nbins=20)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "10582f80",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:],bins=20)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "5281f5d8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:],bins=27)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "f228e375",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:],bins=30)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "412ae611",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:],bins=135)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "79c06e61",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:],bins=135)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "bff7907a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(params[params.shape[0]-1,:],bins=100)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "d1f7f146",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,10))\n",
+    "plt.hist(params[params.shape[0]-1,:],bins=100)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "aa4c97ef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(20,10))\n",
+    "plt.hist(params[params.shape[0]-1,:],bins=100)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "7cc552c8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(20,5))\n",
+    "plt.hist(params[params.shape[0]-1,:],bins=100)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "30680ff0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(20,5))\n",
+    "plt.hist(params[params.shape[0]-1,:],bins=100)\n",
+    "plt.title('LV3 passing networks')\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('# cells')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "2f072d3a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "params.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "fad0e59b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "params[16,:]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "a35f399b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "params[16,:80]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "5de01825",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "params[16,:81]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "23073aa1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#34 passing networks\n",
+    "#160 means two networks passed, 80 means 1 network passed\n",
+    "plt.figure(figsize=(20,5))\n",
+    "plt.hist(params[params.shape[0]-1,:],bins=100)\n",
+    "plt.title('LV3 passing networks')\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('# cells')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "81a50635",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqs = np.load(os.path.join(archivedPath,\"LV3\",'SCfreqs'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "eeff8c63",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqs = np.load(os.path.join(archivedPath,\"LV3\",'SCfreqs'),allow_pickle=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "2452c5ee",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqs = np.loadtxt(os.path.join(archivedPath,\"LV3\",'SCfreqs'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "86c22a2d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqs"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "cc0d73f2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqs.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "3970ec0d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "LV3Params.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "1ae56f13",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqs = np.loadtxt(os.path.join(archivedPath,\"LV3\",'SCfreqs'))\n",
+    "SCfreqsPassing = SCfreqs[passIdxs]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "dd91fd97",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(SCfreqsPassing)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "58f73228",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.scatter(params[params.shape[0]-1,:],SCfreqsPassing)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "id": "afd58c3f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.scatter(params[params.shape[0]-1,:],SCfreqsPassing)\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "7b2fdb4c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.scatter(params[params.shape[0]-1,:],SCfreqsPassing)\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "id": "b2ceb42c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,10))\n",
+    "plt.scatter(params[params.shape[0]-1,:],SCfreqsPassing)\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "492a52bd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,5))\n",
+    "plt.scatter(params[params.shape[0]-1,:],SCfreqsPassing)\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "2693ab41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,5))\n",
+    "plt.scatter(params[params.shape[0]-1,:],SCfreqsPassing)\n",
+    "plt.title('SC freqs at which networks given the x conductance passed')\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "880506a8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqsPassing.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "a730dabb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pd.DataFrame(SCfreqsPassing)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "id": "902b7a0b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqsPassing[:,:80]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "36f56c55",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqsPassing[:80]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "id": "94fc6ccc",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "allIdxs"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "945bb5f6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "allIdxs.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "e8bc87fe",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "passIdxs"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "d647959c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.hist(SCfreqsPassing)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "a94c1d71",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mappedIDxs,freqsnonavgpassing = getRasterData(coded,SCfreqs)#returns the network ids mapped from 0-#passing networks, and the SC frequencies at which the network id passed\n",
+    "counts, bins = np.histogram(freqsnonavgpassing,bins=np.arange(16,32))\n",
+    "plt.hist(freqsnonavgpassing,bins=50, align='left')\n",
+    "plt.xticks(np.arange(16,32),np.arange(16,32))\n",
+    "plt.title('non average passing')\n",
+    "plt.savefig('non average passing')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "a7159fe6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,5))\n",
+    "plt.scatter(params[params.shape[0]-1,:],freqsnonavgpassing)\n",
+    "plt.title('SC freqs at which networks given the x conductance passed')\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "id": "bf8bcf79",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,5))\n",
+    "plt.scatter(params[params.shape[0]-1,mappedIDxs],freqsnonavgpassing)\n",
+    "plt.title('SC freqs at which networks given the x conductance passed')\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "id": "bcaabb59",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mappedIDxs"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "d4ecd7d4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SCfreqs = np.loadtxt(os.path.join(archivedPath,\"LV3\",'SCfreqs'))\n",
+    "SCfreqsPassing = SCfreqs[passIdxs]\n",
+    "gSyn = params[params.shape[0]-1,:]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "f128ff7d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gSyn"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "id": "1cbc2b3d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gSyn.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "id": "0d0e80a5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "params[params.shape[0]-1,mappedIDxs]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "id": "53e00c1b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,5))\n",
+    "plt.scatter(params[params.shape[0]-1,int(mappedIDxs*80)],freqsnonavgpassing)\n",
+    "plt.title('SC freqs at which networks given the x conductance passed')\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "id": "5978fff2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mappedIDxs*80"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "id": "c4c06455",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "freqsnonavgpassing"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 53,
+   "id": "10c8a7d3",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "freqsnonavgpassing.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 54,
+   "id": "64776e4b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "(mappedIDxs*80).shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "id": "2e4000b9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "int(mappedIDxs*80)]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "id": "3347a12b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "int(mappedIDxs*80)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "id": "b8df1a64",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "int(list(mappedIDxs)*80)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "id": "b52fb9ef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize=(15,5))\n",
+    "plt.scatter(params[params.shape[0]-1,mappedIDxs*80],freqsnonavgpassing)\n",
+    "plt.title('SC freqs at which networks given the x conductance passed')\n",
+    "plt.xlabel('uS')\n",
+    "plt.ylabel('SCfreq')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 59,
+   "id": "8f10cc0f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib widgets"
+   ]
+  }
+ ],
+ "metadata": {},
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

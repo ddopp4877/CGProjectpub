@@ -296,7 +296,7 @@ def plotNet(array,NetNo,SCfreq):
     
     fig,axs = plt.subplots(1,5,figsize=(25,4))
     startNo=getNetIDX(NetNo,SCfreq)
-    [axs[i].plot(array[:,startNo+i]) for i in range(0,len(axs))]
+    [axs[i].plot(array[:,i]) for i in range(0,len(axs))]
     plt.suptitle('network %d at freq %d' %(NetNo,SCfreq))
     return fig
 

@@ -1,0 +1,1 @@
+g1           g2              Low xcorr   Med Xcorr 

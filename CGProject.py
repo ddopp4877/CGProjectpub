@@ -15,7 +15,7 @@ import tracemalloc
 totalStart = time.time()
 
 seed = "32165156"
-LV1Trials = "20"
+LV1Trials = "6"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -23,13 +23,21 @@ passParamsFileName = "passParams"
 passParamsFileNameRepeat = "passParamsRepeat"
 eventTimesFileName = "EventTimes"
 
+skipLV2 = 'y'#y to skip LV2
+
+if skipLV2 == 'y':
+    print('not using LV2')
+    lv2simName = 'LV2dummy.py'
+elif skipLV2 == 'n':
+    print('including LV2 level selection')
+    lv2simName = 'LV2Simulation.py'
 
 #start LV1timer
 start = time.time()
 
 #LV1
 
-output = subprocess.run(['python', 'LV1Simulation.py', LV1Trials, seed, VoltageFilename, ParamsFilename],capture_output=True)
+output = subprocess.run(['python', 'LV1Simulation.py', LV1Trials, seed, VoltageFilename, ParamsFilename])
 print(output)
 end = time.time()
 print("LV1 runtime = %.2f" %(end-start))
@@ -68,7 +76,6 @@ LV1passnumber = (passingParams.shape)[1]
 if LV1passnumber <1:
    print("not enough cells passed LV1")
    quit()
-   
 
 
 eventTimes, SCfreqs = makeEventTimes(LV1passnumber,seed)
@@ -81,40 +88,46 @@ start = time.time()
 
 #LV2 control
 
-output = subprocess.run(['python', 'LV2Simulation.py',seed, VoltageFilename, passParamsFileName, eventTimesFileName,"Control"],capture_output=True)
 
+output = subprocess.run(['python', lv2simName,seed, VoltageFilename, passParamsFileName, eventTimesFileName,"Control"])
 print(output)
 end = time.time()
 print("LV2 runtime = %.2f" %(end - start))
 
-#rerun with TEA :
-start = time.time()
-output = subprocess.run(['python', 'LV2Simulation.py', seed, VoltageFilename, passParamsFileName, eventTimesFileName,"TEA"],capture_output=True)
 
-print(output)
-end = time.time()
-print("LV2 TEA runtime = %.2f" %(end - start))
+if skipLV2 == 'n':
+    #rerun with TEA :
+    start = time.time()
+    output = subprocess.run(['python', 'LV2Simulation.py', seed, VoltageFilename, passParamsFileName, eventTimesFileName,"TEA"])
+
+    print(output)
+    end = time.time()
+    print("LV2 TEA runtime = %.2f" %(end - start))
+
+    #LV2RejectionProtocol:
+
+    #pkl.npy may save space for large data sets
+    Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
+    VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
+    coded, Raw, Idxs,critList = LV2RejectionProtocol(Vsoma,VsomaTEA )# coded, values, and indexes
+    gc.collect()
+    np.savetxt(os.path.join("output","LV2","LV2RejectionResults.txt"),coded)
+    np.savetxt(os.path.join("output","LV2","LV2RejectionRaw.txt"),Raw)
 
 
-#LV2RejectionProtocol:
+    #get the passing parameters from LV2 and save
+    params = np.array(pd.read_pickle(os.path.join("output","LV2",passParamsFileNameRepeat + "Control" + ".pkl")))
+    passingIdxs = np.where(Idxs ==1)
+    passingParams = np.unique(params[:,passingIdxs[0]],axis=1)
+    passParamsLV2 = pd.DataFrame(data = passingParams)
+    passParamsLV2.to_pickle(os.path.join("output","LV2",passParamsFileName + ".pkl"))
+    print("Params = %d" %((params.shape)[1]))
+    print("LV2 Passing Params = %d" %((passingParams.shape)[1]))
 
-#pkl.npy may save space for large data sets
-Vsoma =np.array(np.load(os.path.join("output","LV2",VoltageFilename +"Control" +  ".pkl.npy"),allow_pickle=True)).T
-VsomaTEA = np.array(np.load(os.path.join("output","LV2", VoltageFilename + "TEA" + ".pkl.npy"),allow_pickle=True)).T
-coded, Raw, Idxs,critList = LV2RejectionProtocol(Vsoma,VsomaTEA )# coded, values, and indexes
-gc.collect()
-np.savetxt(os.path.join("output","LV2","LV2RejectionResults.txt"),coded)
-np.savetxt(os.path.join("output","LV2","LV2RejectionRaw.txt"),Raw)
+if skipLV2 == 'y':   
+    passingParams = np.array(pd.read_pickle(os.path.join("output","LV2",passParamsFileNameRepeat+ "Control" + ".pkl")))
+    passingParams  = np.unique(passingParams,axis=1)
 
-
-#get the passing parameters from LV2 and save
-params = np.array(pd.read_pickle(os.path.join("output","LV2",passParamsFileNameRepeat + "Control" + ".pkl")))
-passingIdxs = np.where(Idxs ==1)
-passingParams = np.unique(params[:,passingIdxs[0]],axis=1)
-passParamsLV2 = pd.DataFrame(data = passingParams)
-passParamsLV2.to_pickle(os.path.join("output","LV2",passParamsFileName + ".pkl"))
-print("Params = %d" %((params.shape)[1]))
-print("LV2 Passing Params = %d" %((passingParams.shape)[1]))
 
 
 
@@ -122,7 +135,6 @@ print("LV2 Passing Params = %d" %((passingParams.shape)[1]))
 # put the passing cells of LV2 into sets of 5. then repeat the params 16 times, give to LV3 code. LV3 code will connect all the sizs to each other in a network, and lc12 and lc45 then run.
 
 #make passing params of lv2 a multiple of 5, then repeat each network 16 times, one for each SCfreq
-
 
 if (passingParams.shape)[1] < 5:
     print("not enough cells to make a network")
@@ -158,7 +170,7 @@ else:
 
 
     startLV3 = time.time()
-    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"Control","notAvg"],capture_output=True)
+    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"Control","notAvg","fixed_gSyn"])
     print(output)
     endLV3 = time.time()
     print("LV3time = %.2f" %(endLV3 - startLV3))
@@ -166,7 +178,7 @@ else:
     #rerun with TEA
 
     startLV3 = time.time()
-    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"TEA","notAvg"],capture_output=True)
+    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"TEA","notAvg","fixed_gSyn"])
     print(output)
     endLV3 = time.time()
     print("LV3 TEA time = %.2f" %(endLV3 - startLV3))
@@ -200,14 +212,16 @@ totalEnd = time.time()
 print("Totaltime = %.2f" %(totalEnd - totalStart))
 
 
-
+"""
 print("do you want to rerun LV3 with averaged networks? [y\\n]")
 choice = input()
 choice = choice.lower()
 if choice == 'n':
     quit()
 if choice == 'y':
-    
+    if netPassNo ==0:
+        print("no networks passed LV3 nonaveraged")
+        quit()
     #make averaged nets
     
     LV3passParams = np.array(pd.read_pickle(os.path.join("output","LV3","passParamsRepeat.pkl")))
@@ -239,7 +253,7 @@ if choice == 'y':
     ET.to_pickle(os.path.join("input","LV3","Avg",eventTimesFileName + ".pkl"))
 
     startLV3 = time.time()
-    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"Control","Avg"],capture_output=True)
+    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"Control","Avg"])#,capture_output=True)
     print(output)
     endLV3 = time.time()
     print("LV3time = %.2f" %(endLV3 - startLV3))
@@ -247,7 +261,7 @@ if choice == 'y':
     #rerun with TEA
 
     startLV3 = time.time()
-    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"TEA","Avg"],capture_output=True)
+    output = subprocess.run(['python', 'LV3Simulation.py',seed, VoltageFilename,passParamsFileNameRepeat, eventTimesFileName,"TEA","Avg"])
     print(output)
     endLV3 = time.time()
     print("LV3 TEA time = %.2f" %(endLV3 - startLV3))
@@ -266,3 +280,4 @@ if choice == 'y':
     uniqueNetPass = [1 if (np.any(netPass[i:i+16] == 1)) else 0 for i in range(0,len(netPass),16)]# mark 1 if any networks in a set of 16 passed (because it's actually the same net)
     netPassNo = uniqueNetPass.count(1)
     print("#networks tested = %d\n#networks passed = %d" %(b/16/5,netPassNo))
+    """

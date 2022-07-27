@@ -375,8 +375,8 @@ def makeRandomCellsLV2(*args):
             LCs[i].neurite.g_nap2 =     params[14,i]
             LCs[i].neurite.g_bkkca =    params[15,i]*teaEffect
 
-            LCs[i].siz.g_leak =         0.001 #
-            LCs[i].siz.g_nasiz =        0.300 #
+            LCs[i].siz.g_leak =         0.002 #
+            LCs[i].siz.g_nasiz =        0.600 #
             LCs[i].siz.g_kdsiz =        0.074 # 
   
             #siz conductances are all the same, and defined in the class
@@ -417,8 +417,8 @@ def makeCellsLV3(LV2PassParams,controlorTEA):#the passparams file should be each
             LCs[i].neurite.g_nap2 =     params[13,i]
             LCs[i].neurite.g_bkkca =    params[14,i]*teaEffect
 
-            LCs[i].siz.g_leak =         0.001     #from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2821064/
-            LCs[i].siz.g_nasiz =        0.300     # 
+            LCs[i].siz.g_leak =         0.002     #from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2821064/
+            LCs[i].siz.g_nasiz =        0.600     # 
             LCs[i].siz.g_kdsiz =        0.074     # 
             
             #siz conductances are all the same, and defined in the class

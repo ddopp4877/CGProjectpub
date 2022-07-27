@@ -41,14 +41,16 @@ teaBoxLabelCol = 6
 eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
 LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
 
-#eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\EventTimes.pkl'))
-#LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\notAVG\input\LV3\passParamsRepeat.pkl'))
+#eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\EventTimesControl.pkl'))
+#LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\passParamsRepeat.pkl'))
+
 
 Trials = (LV2PassParams.shape)[1]
+print(LV2PassParams.shape)
 subTrials = 5
-eventTimes = eventTimes[:,:Trials]
-LV2PassParams = LV2PassParams[:,:Trials]
-ETs = [h.Vector(eventTimes[i,eventTimes[i,:] !=0]) for i in range(0,Trials)]
+#eventTimes = eventTimes[:,:subTrials]
+#LV2PassParams = LV2PassParams[:,:Trials]
+#ETs = [h.Vector(eventTimes[i,eventTimes[i,:] !=0]) for i in range(0,subTrials)]
 
 h.load_file('stdrun.hoc') #so you can use run command
 
@@ -61,13 +63,12 @@ class Network:
         
         self.params = params
         self.LCs = LCs
-
         self.vsAll = [h.VecStim() for i in range(0,subTrials)]
-        
+        print(LCs)
         self.syns = self.createSyns()
         self.setSyns()
 
-        self.synGain = 0.13
+        self.synGain = 0.12
         self.RSOMA= 1.54
         self.RSIZ =200
 
@@ -171,6 +172,7 @@ class Window:
         val1 = myNet.myNetControl.LCs[0].siz.g_leak
         val2 = myNet.myNetControl.LCs[0].siz.g_nasiz
         val3 = myNet.myNetControl.LCs[0].siz.g_kdsiz
+        print(val1)
         ar1 = np.repeat(np.array([val1,val2,val3]),5).reshape(3,5)
         ar2 = np.ones((3,5))
         self.nextParams = np.multiply(ar1,ar2)
@@ -183,7 +185,6 @@ class Window:
             self.allSpins.append(MySpinBox(master,self.usedParams[i,0],self.myVarsValues[i][1],1e-6,self.myVars[i],i+1,boxColControl,0,2,"myNetControl"))
             #self.controlVarText = tk.StringVar()
             self.controlVarText = '({0:>.5f}   -   {1:>.5f})'.format(self.myVarsValues[i][0],self.myVarsValues[i][1])
-           
             self.rangeLabel = tk.Label(master, text = self.controlVarText).grid(row = i+1,column = boxColControlLabelRange,padx=5)
 
             
@@ -277,9 +278,9 @@ class NetPlot:
         
 
         #create Slider objects
-        self.synGainSlider = self.mySliders(0.05,2,0.01,self.myNetControl.synGain,0.09,"synGain")#start, end, step,initval, yaxis location, labelname
-        self.somaRSlider = self.mySliders(1.56,6,0.01,self.myNetControl.RSOMA,0.05,"somaR")
-        self.sizRSlider = self.mySliders(1,300,1,self.myNetControl.RSIZ,0.01,"sizR")
+        self.synGainSlider = self.mySliders(0.00001,2,0.005,self.myNetControl.synGain,0.09,"synGain")#start, end, step,initval, yaxis location, labelname
+        self.somaRSlider = self.mySliders(1.25,2.5,0.01,self.myNetControl.RSOMA,0.05,"somaR")
+        self.sizRSlider = self.mySliders(0.1,300,1,self.myNetControl.RSIZ,0.01,"sizR")
 
         #set a callback for the slider params to rerun and print on change
         self.synGainSlider.mySlider.on_changed( self.updateSyn)
@@ -288,9 +289,9 @@ class NetPlot:
         
         self.TEAPlot = self.plotClass("TEA",self.simTime,self.plotArrayTEA)
                 #create Slider objects
-        self.synGainSliderTEA = self.mySliders(0.05,2,0.01,self.myNetTEA.synGain,0.09,"synGain")#start, end, step,initval, yaxis location, labelname
-        self.somaRSliderTEA = self.mySliders(1.56,6,0.01,self.myNetTEA.RSOMA,0.05,"somaR")
-        self.sizRSliderTEA = self.mySliders(1,300,1,self.myNetTEA.RSIZ,0.01,"sizR")
+        self.synGainSliderTEA = self.mySliders(0.00001,2,0.005,self.myNetTEA.synGain,0.09,"synGain")#start, end, step,initval, yaxis location, labelname
+        self.somaRSliderTEA = self.mySliders(1.25,2.5,0.01,self.myNetTEA.RSOMA,0.05,"somaR")
+        self.sizRSliderTEA = self.mySliders(0.1,300,1,self.myNetTEA.RSIZ,0.01,"sizR")
 
         #set a callback for the slider params to rerun and print on change
         self.synGainSliderTEA.mySlider.on_changed( self.updateSynTEA)
@@ -373,9 +374,10 @@ def callback():
         root.quit()
     
 
-netNo,FreqNo = 1,19 #network number ?, tested at ? Hz
+netNo,FreqNo = 1,24 #network number ?, tested at ? Hz
 startNo = getNetIDX(netNo,FreqNo)
-
+ETs = [h.Vector(eventTimes[i,eventTimes[i,:] !=0]) for i in range(0,Trials)]
+ETs = ETs[startNo:startNo+5]
 
 root = tk.Tk()
 myNet = NetPlot(startNo)

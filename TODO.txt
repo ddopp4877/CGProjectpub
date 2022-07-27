@@ -42,3 +42,11 @@ frequency gets rounded in making the event times, so find a way to use this inst
 https://www.jneurosci.org/content/29/17/5573
 mention that "For instance, having subunits of multiple channel types under the control of a common transcription factor might be simpler than independent transcriptional control of each channel type. This could result in different subunits being expressed in fixed ratios. Thus, the presence of correlations between conductances does not automatically imply that these correlations are required for proper electrophysiological behavior.'
 Do we have a way to show which interpretation would be more consistent with model and lab data?
+
+
+the completely unknowns:
+gSIZ
+gSyn
+gleak SIZ
+gNa SIZ
+gKd SIZ

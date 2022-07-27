@@ -14,6 +14,10 @@ then run:
 python initProject.py  
 python CGProject.py
 
+
+to run CGrun.sh, enter :  
+yes | bash CGRun.sh
+
 ---------------------------------------------------------------------
 Notes
 
