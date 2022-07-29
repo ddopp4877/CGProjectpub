@@ -15,7 +15,7 @@ import tracemalloc
 totalStart = time.time()
 
 seed = "32165156"
-LV1Trials = "6"
+LV1Trials = "1000"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
@@ -23,7 +23,7 @@ passParamsFileName = "passParams"
 passParamsFileNameRepeat = "passParamsRepeat"
 eventTimesFileName = "EventTimes"
 
-skipLV2 = 'y'#y to skip LV2
+skipLV2 = 'n'#y to skip LV2 by using the dummy file. Note this will rerun LV1 and overwrite any previous LV2 results in the input/output folders
 
 if skipLV2 == 'y':
     print('not using LV2')
@@ -127,7 +127,6 @@ if skipLV2 == 'n':
 if skipLV2 == 'y':   
     passingParams = np.array(pd.read_pickle(os.path.join("output","LV2",passParamsFileNameRepeat+ "Control" + ".pkl")))
     passingParams  = np.unique(passingParams,axis=1)
-
 
 
 

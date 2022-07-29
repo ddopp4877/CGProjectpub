@@ -69,7 +69,7 @@ if randomGains == 'random_gSyn':
     synGains = np.repeat(synGains,80)
 elif randomGains == 'fixed_gSyn':
     print('using constant gSyns for LV3')
-    synGains = np.ones(Trials)*0.12
+    synGains = np.ones(Trials)*0.09
 else:
     print('synGains argument needs to be either random_gSyn or fixed_gSyn')
 

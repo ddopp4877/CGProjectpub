@@ -2,6 +2,7 @@
 /CGenv
 /.ipynb_checkpoints
 /output
+/input
 /modFiles/*.[co]
 .DS_Store
 *.pdf

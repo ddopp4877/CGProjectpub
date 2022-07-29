@@ -44,7 +44,7 @@ Trials = len(LCs)
 #read in event times, turn it into a vector, remove the zeros, play the vector as the source of the vectstim, which is the source of the netcon to the exp2syn target
 
 #synGain = 0.16
-synGain = 0.1
+synGain = 0.09
 rng = np.random.default_rng(seed=seed)
 synGains = rng.uniform(low=0.0001,high=0.2,size=int(Trials/16))
 synGains = np.repeat(synGain,16*Trials)
