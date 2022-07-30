@@ -39,7 +39,7 @@ teaBoxLabelCol = 6
 
 
 eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
-LV2PassParams =  np.array(pd.read_pickle(os.path.join("input","LV3", passparamsfilename+ ".pkl")))
+LV2PassParams =  np.array(pd.read_pickle(os.path.join("output","LV3", passparamsfilename+ ".pkl")))
 
 #eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\EventTimesControl.pkl'))
 #LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\passParamsRepeat.pkl'))
@@ -64,8 +64,7 @@ class Network:
         netParams = LV2PassParams[:,self.startNo:self.startNo+5]
         self.params, self.LCs = makeCellsLV3(netParams,controlorTEA)
         self.ETs = ETs[self.startNo:self.startNo+5]
-        #self.params = params
-        #self.LCs = LCs
+
         self.vsAll = [h.VecStim() for i in range(0,subTrials)]
 
         self.syns = self.createSyns()
@@ -80,7 +79,7 @@ class Network:
     # connect all the sizs in a network, and LC1 and LC2 Somas and LC4 and LC5
 
         self.g,self.gSIZ = self.createSomaGaps(),self.createSIZGaps()
-
+        self.v =  [h.Vector().record(self.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
 
     def createSIZGaps(self):
         #join all siz's, referencing the combinations list (global) for all the connections.
@@ -134,17 +133,20 @@ class Network:
         i = len(gSIZ) - 1
         gSIZ[i].r = self.RSIZ
         h.setpointer(LCA.siz(0.5)._ref_v,'vgap',gSIZ[i])
+    
+    
+    
         
     def run(self):
         stopTime = 1800
-        self.v =  [h.Vector().record(self.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
-        self.vSIZ = [h.Vector().record(self.LCs[i].siz(0.5)._ref_v) for i in range(0,subTrials)] 
+        self.vloc = self.v
+        #self.v =  [h.Vector().record(self.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
+        #self.vSIZ = [h.Vector().record(self.LCs[i].siz(0.5)._ref_v) for i in range(0,subTrials)] 
         h.dt = 0.2
         h.finitialize(-51)
         h.continuerun(tstop)
-        return np.array(self.v).T[:int(stopTime/dt),:]
+        return np.array(self.vloc).T[:int(stopTime/dt),:]
         #return np.array(self.vSIZ).T[:int(stopTime/dt),:]
-
 
 
 
@@ -177,14 +179,22 @@ class Window:
         val1 = myNet.myNetControl.LCs[0].siz.g_leak
         val2 = myNet.myNetControl.LCs[0].siz.g_nasiz
         val3 = myNet.myNetControl.LCs[0].siz.g_kdsiz
-        print(val1)
+        
         ar1 = np.repeat(np.array([val1,val2,val3]),5).reshape(3,5)
         ar2 = np.ones((3,5))
         self.nextParams = np.multiply(ar1,ar2)
         self.usedParams = np.vstack((self.usedParams,self.nextParams))
         
         self.usedParamsTEA = np.vstack((self.usedParamsTEA,self.nextParams))
+                
+
+        self.NetBox = netSelect(master,"Network Number",30,2)
+        self.FreqBox = netSelect(master,"SCfrequency",32,2)
+
+        self.vecSelect = vecSelect(master,31,1)
         
+        
+    
         for i in range(0,len(self.myVars)):
             
             self.allSpins.append(MySpinBox(master,self.usedParams[i,0],self.myVarsValues[i][1],1e-6,self.myVars[i],i+1,boxColControl,0,2,"myNetControl"))
@@ -196,9 +206,87 @@ class Window:
             self.teaVarText = '({0:>.5f}   -   {1:>.5f})'.format(self.myVarsValuesTEA[i][0],self.myVarsValuesTEA[i][1])
             self.rangeLabel = tk.Label(master, text = self.teaVarText).grid(row = i+1,column = teaBoxLabelRangeCol,padx = 5)
         
-        self.NetBox = netSelect(master,"Network Number",30,2)
-        self.FreqBox = netSelect(master,"SCfrequency",32,2)
+        self.cellSelect = cellSelect(master,31,0)
 
+class cellSelect():
+    def __init__(self,master,rownum,columnum):
+        self.labelname = "Select Cell #"
+        self.string_var = tk.StringVar()
+        self.string_var.set("0")
+        self.enterbox = tk.Entry(master,textvariable=self.string_var)
+        self.enterbox.grid(row = rownum,column = columnum)
+        self.boxLabel = tk.Label(master,text = self.labelname).grid(row = rownum+1,column = columnum)
+
+        self.bindings()
+
+    def display(self,*args):
+        self.value = self.string_var.get()
+        print(self.value)
+        #window.cellNo = self.value
+        for i in range(len(window.allSpins)):
+            window.allSpins[i].cellNo = self.value
+        for i in range(len(window.allSpinsTEA)):
+            window.allSpinsTEA[i].cellNo = self.value
+            #exec("%s = %f" %("myNet." + window.allSpins[0].controlorTEA+ ".LCs["+str(window.allSpins[int(self.value)].cellNo)+"]." + window.allSpins[int(self.value)].boxLabel,float(window.allSpins[int(self.value)].spinbox.getvalue)))
+        #self.value = self.spinbox.get()
+        #exec("%s = %f" %("myNet." + self.controlorTEA+ ".LCs["+str(self.cellNo)+"]." + self.boxLabel,float(self.value)))
+        #myNet.myNetControl.setSyns()
+        #myNet.myNetControl.NetCons = myNet.myNetControl.createNetCons()
+        #myNet.myNetControl.g,myNet.myNetControl.gSIZ = myNet.myNetControl.createSomaGaps(),myNet.myNetControl.createSIZGaps()
+        #myNet.update()
+        #print(window.allSpins[int(self.value)].display())
+        #for i in range(0,len(window.myVars)):
+            
+            #window.allSpins[i].cellNo = window.usedParams[i,int(self.value)]#MySpinBox(master,window.usedParams[i,int(self.value)],window.myVarsValues[i][1],1e-6,window.myVars[i],i+1,boxColControl,0,2,"myNetControl")
+            #print(window.usedParams[i,int(self.value)])
+            #append(MySpinBox(master,window.usedParams[i,int(self.value)],window.myVarsValues[i][1],1e-6,window.myVars[i],i+1,boxColControl,0,2,"myNetControl"))
+            
+            #window.allSpinsTEA.append(MySpinBox(master,self.usedParamsTEA[i,int(self.value)],self.myVarsValuesTEA[i][1],1e-6,self.myVarsTEA[i],i+1,teaBoxCol,0,8,"myNetTEA"))
+
+        myNet.update()
+        myNet.updateTEA()
+        
+        
+    def bindings(self):
+        self.enterbox.bind('<Return>',self.display)
+
+
+class vecSelect():
+    
+    def __init__(self,master,rownum,columnum):
+        
+        self.labelname = 'Change to Soma or SIZ'
+        self.str1 = tk.StringVar(master)
+        self.str1.set("Soma")
+        self.enterbox = tk.Button(master,text=self.labelname,command=self.display)
+        self.enterbox.grid(row = rownum,column = columnum)
+        self.vecLabel = tk.Label(master,text = self.str1.get())
+        self.vecLabel.grid(row = rownum+1,column = columnum)
+        self.bindings()
+        
+
+    def display(self):
+        
+        if self.str1.get() == 'Soma':
+            self.str1.set("SIZ")
+            self.vecLabel['text'] = self.str1.get()
+            myNet.myNetControl.v = [h.Vector().record(myNet.myNetControl.LCs[i].siz(0.5)._ref_v) for i in range(0,subTrials)] 
+            myNet.myNetTEA.v = [h.Vector().record(myNet.myNetTEA.LCs[i].siz(0.5)._ref_v) for i in range(0,subTrials)]
+            
+        else:
+            self.str1.set("Soma")
+            self.vecLabel['text'] = self.str1.get()
+            myNet.myNetControl.v =  [h.Vector().record(myNet.myNetControl.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
+            myNet.myNetTEA.v =  [h.Vector().record(myNet.myNetTEA.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
+            
+        print(self.str1.get())
+
+        myNet.update()
+        myNet.updateTEA()
+    
+    def bindings(self):
+        self.enterbox.bind('<Return>',self.display)
+        
 
 class netSelect():
     def __init__(self,master,labelname,rownum,columnum):
@@ -220,18 +308,28 @@ class netSelect():
             myNet.myNetTEA.FreqNo = int(self.value)
         print(self.value)
 
-        myNet.myNetControl.__init__(myNet.myNetControl.netNo,myNet.myNetControl.FreqNo,"Control")
-        myNet.myNetTEA.__init__(myNet.myNetTEA.netNo,myNet.myNetTEA.FreqNo,"TEA")
-        self.plotArray = myNet.myNetControl.run()
-        [myNet.controlPlot.axList[i][0].set_ydata(self.plotArray[:,i]) for i in range(0,(self.plotArray.shape)[1])]
-        myNet.controlPlot.fig.suptitle('%s - Network %d at %d Hz' %("Control",myNet.myNetControl.netNo, myNet.myNetControl.FreqNo))
-        myNet.controlPlot.fig.canvas.draw()
         
+        self.startNo = getNetIDX(myNet.myNetControl.netNo,myNet.myNetTEA.FreqNo)
+        netParams = LV2PassParams[:,self.startNo:self.startNo+5]
+        self.params, self.LCs = makeCellsLV3(netParams,"Control")
+        
+        myNet.myNetControl.ETs = ETs[self.startNo:self.startNo+5]
+        myNet.myNetControl.vsAll = [h.VecStim() for i in range(0,subTrials)]
+        myNet.myNetControl.syns = myNet.myNetControl.createSyns()
+        myNet.myNetControl.setSyns()
+        myNet.myNetControl.setEventTimes()
+        myNet.myNetControl.NetCons = myNet.myNetControl.createNetCons()
+        myNet.controlPlot.fig.suptitle('%s - Network %d at %d Hz' %("Control",myNet.myNetControl.netNo, myNet.myNetControl.FreqNo))
+        myNet.update()
   
-        self.plotArray = myNet.myNetTEA.run()
-        [myNet.TEAPlot.axList[i][0].set_ydata(self.plotArray[:,i]) for i in range(0,(self.plotArray.shape)[1])]
+        myNet.myNetTEA.ETs = ETs[self.startNo:self.startNo+5]
+        myNet.myNetTEA.vsAll = [h.VecStim() for i in range(0,subTrials)]
+        myNet.myNetTEA.syns = myNet.myNetTEA.createSyns()
+        myNet.myNetTEA.setSyns()
+        myNet.myNetTEA.setEventTimes()
+        myNet.myNetTEA.NetCons = myNet.myNetTEA.createNetCons()
         myNet.TEAPlot.fig.suptitle('%s - Network %d at %d Hz' %("TEA",myNet.myNetTEA.netNo, myNet.myNetTEA.FreqNo))
-        myNet.TEAPlot.fig.canvas.draw()
+        myNet.updateTEA()
         
         
     def bindings(self):
@@ -266,18 +364,17 @@ class MySpinBox():
             self.label.grid(row=self.gridRow,column=boxColControlLabel,pady=self.gridPady,padx=self.gridPadx,sticky = 'W')
         else:
             self.label.grid(row=self.gridRow,column=teaBoxLabelCol,pady=self.gridPady,padx=self.gridPadx,sticky = 'W')
-        #self.label.configure(text = self.boxLabel )
         
         
+        self.cellNo = 0
         self.bindings()
+        
 
 
-
-    def display(self,event):
+    def display(self,*args):
         self.value = self.spinbox.get()
         
-        for i in range(1):
-            exec("%s = %f" %("myNet." + self.controlorTEA+ ".LCs["+str(i)+"]." + self.boxLabel,float(self.value)))
+        exec("%s = %f" %("myNet." + self.controlorTEA+ ".LCs["+str(self.cellNo)+"]." + self.boxLabel,float(self.value)))
         
         if self.controlorTEA == "myNetControl":
             
@@ -285,19 +382,15 @@ class MySpinBox():
             myNet.myNetControl.setSyns()
             myNet.myNetControl.NetCons = myNet.myNetControl.createNetCons()
             myNet.myNetControl.g,myNet.myNetControl.gSIZ = myNet.myNetControl.createSomaGaps(),myNet.myNetControl.createSIZGaps()
-            
-            self.plotArray = myNet.myNetControl.run()
-            [myNet.controlPlot.axList[i][0].set_ydata(self.plotArray[:,i]) for i in range(0,(self.plotArray.shape)[1])]
-            myNet.controlPlot.fig.canvas.draw()
+            myNet.update()
+
         else:
             
             myNet.myNetTEA.setSyns()
             myNet.myNetTEA.NetCons = myNet.myNetTEA.createNetCons()
             myNet.myNetTEA.g,myNet.myNetTEA.gSIZ = myNet.myNetTEA.createSomaGaps(),myNet.myNetTEA.createSIZGaps()
-            
-            self.plotArray = myNet.myNetTEA.run()
-            [myNet.TEAPlot.axList[i][0].set_ydata(self.plotArray[:,i]) for i in range(0,(self.plotArray.shape)[1])]
-            myNet.TEAPlot.fig.canvas.draw()
+            myNet.updateTEA()
+
 
     def bindings(self):
         self.spinbox.bind('<Return>', self.display)

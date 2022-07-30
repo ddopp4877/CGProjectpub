@@ -82,7 +82,7 @@ def getpassingNetIDXs(coded):#each network id is created for each cell in that n
     codedwNets = np.vstack((coded,netids))
     passnetIDs =np.array([int(codedwNets[a,i]) if (np.all(coded[:,i:i+5]==1)) else -1 for i in range(0,b,5)])#list of cellids of passing nets, 5x less than all traces 56000
     passnetIDs = np.repeat(passnetIDs,5)
-    passnetIDXs = passnetIDs[np.where(passnetIDs != -1)[0]]#just the passing idxs from the original 56000
+    passnetIDXs = passnetIDs[np.where(passnetIDs == 1)[0]]#just the passing idxs from the original 56000
     return passnetIDs,passnetIDXs
 
 
@@ -100,7 +100,7 @@ def mapping(passnetIDXs):#run getpassingNetIDXs to get passnetIDXs
             IDxs.append(passnetIDXs[i])
             j+=1
     mappedIdxs = mappedIdxs[1:]#remove the first item since it is just to get the array started
-    mappedIdxs = np.append(mappedIdxs,mappedIdxs[i])#repeat the last item since we have to stop early
+    mappedIdxs = np.append(mappedIdxs,mappedIdxs[len(mappedIdxs)-1])#repeat the last item since we have to stop early
     IDxs.append(IDxs[len(IDxs)-1])
     return mappedIdxs,IDxs
 
