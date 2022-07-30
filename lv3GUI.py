@@ -207,14 +207,31 @@ class Window:
             self.rangeLabel = tk.Label(master, text = self.teaVarText).grid(row = i+1,column = teaBoxLabelRangeCol,padx = 5)
         
         self.cellSelect = cellSelect(master,31,0)
+        self.resetButton = resetButton(master,31,4)
+
+class resetButton():
+    def __init__(self,master,rownum,columnum):
+        self.labelname = "Reset"
+        self.button = tk.Button(master,text=self.labelname,command=self.run)
+        self.button.grid(row = rownum,column = columnum)
+        self.bindings()
+    def run(self,*args):
+        myNet.__init__(1,16)
+        #myNet.myNetControl.__init__(1,16,"Control")
+    def bindings(self):
+        self.button.bind('<Return>',self.run)
+    
+
 
 class cellSelect():
     def __init__(self,master,rownum,columnum):
+        self.master = master
         self.labelname = "Select Cell #"
         self.string_var = tk.StringVar()
         self.string_var.set("0")
         self.enterbox = tk.Entry(master,textvariable=self.string_var)
         self.enterbox.grid(row = rownum,column = columnum)
+        
         self.boxLabel = tk.Label(master,text = self.labelname).grid(row = rownum+1,column = columnum)
 
         self.bindings()
@@ -222,12 +239,24 @@ class cellSelect():
     def display(self,*args):
         self.value = self.string_var.get()
         print(self.value)
+        self.myVarsValues = list(rangeVarNames().values())
+        self.myVars = list(rangeVarNames().keys())
         #window.cellNo = self.value
         for i in range(len(window.allSpins)):
             window.allSpins[i].cellNo = self.value
+            
         for i in range(len(window.allSpinsTEA)):
             window.allSpinsTEA[i].cellNo = self.value
-            #exec("%s = %f" %("myNet." + window.allSpins[0].controlorTEA+ ".LCs["+str(window.allSpins[int(self.value)].cellNo)+"]." + window.allSpins[int(self.value)].boxLabel,float(window.allSpins[int(self.value)].spinbox.getvalue)))
+            
+        for i in range(myNet.myNetControl.params.shape[0]):
+
+            window.allSpins[i].__init__(self.master,myNet.myNetControl.params[i,int(self.value)],self.myVarsValues[i][1],1e-6,self.myVars[i],i+1,boxColControl,0,2,"myNetControl")
+            window.allSpins[i].cellNo = self.value
+            
+            window.allSpinsTEA[i].__init__(self.master,myNet.myNetTEA.params[i,int(self.value)],self.myVarsValues[i][1],1e-6,self.myVars[i],i+1,teaBoxCol,0,8,"myNetTEA")
+            window.allSpinsTEA[i].cellNo = self.value
+            
+        #exec("%s = %f" %("myNet." + window.allSpins[0].controlorTEA+ ".LCs["+str(window.allSpins[int(self.value)].cellNo)+"]." + window.allSpins[int(self.value)].boxLabel,float(window.allSpins[int(self.value)].spinbox.getvalue)))
         #self.value = self.spinbox.get()
         #exec("%s = %f" %("myNet." + self.controlorTEA+ ".LCs["+str(self.cellNo)+"]." + self.boxLabel,float(self.value)))
         #myNet.myNetControl.setSyns()
@@ -485,12 +514,14 @@ class NetPlot:
         #rerun simulation
         self.plotArray = self.myNetTEA.run()
         [self.TEAPlot.axList[i][0].set_ydata(self.plotArray[:,i]) for i in range(0,(self.plotArray.shape)[1])]
+        [self.TEAPlot.axs[i].set_ylim((-60,np.max(self.plotArray))) for i in range(0,len(self.controlPlot.axList))]
         self.TEAPlot.fig.canvas.draw()
 
     def update(self): 
         #rerun simulation
         self.plotArray = self.myNetControl.run()
         [self.controlPlot.axList[i][0].set_ydata(self.plotArray[:,i]) for i in range(0,(self.plotArray.shape)[1])]
+        [self.controlPlot.axs[i].set_ylim((-60,np.max(self.plotArray))) for i in range(0,len(self.controlPlot.axList))]
         self.controlPlot.fig.canvas.draw()
 
     class plotClass:
@@ -519,14 +550,7 @@ def callback():
         root.quit()
     
 ############ currently using SIZ to plot. uncomment the line in display and comment out the one using SIZ. This is the only change needed to plot soma instead of SIZ
-netNo,FreqNo = 1,26 #network number ?, tested at ? Hz
-startNo = getNetIDX(netNo,FreqNo)
-#ETs = [h.Vector(eventTimes[i,eventTimes[i,:] !=0]) for i in range(0,Trials)]
-#ETs = ETs[startNo:startNo+5]
-
-
-
-
+netNo,FreqNo = 1,16 #network number ?, tested at ? Hz
 root = tk.Tk()
 myNet = NetPlot(netNo,FreqNo)
 window = Window(root)
