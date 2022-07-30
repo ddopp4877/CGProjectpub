@@ -36,10 +36,13 @@ teaBoxLabelRangeCol = 4
 teaBoxCol = 5
 teaBoxLabelCol = 6
 
+os.chdir("modFiles")
+os.system("nrnivmodl")
+os.chdir("..")
 
-
-eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
-LV2PassParams =  np.array(pd.read_pickle(os.path.join("output","LV3", passparamsfilename+ ".pkl")))
+#archivedPath = os.path.join("..","CGResults","fixed_Gsyn","MedwithLV2")
+eventTimes = np.array(pd.read_pickle(os.path.join("LV3","input",eventtimesfilename + ".pkl")))
+LV2PassParams =  np.array(pd.read_pickle(os.path.join("LV3","output", passparamsfilename+ ".pkl")))
 
 #eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\EventTimesControl.pkl'))
 #LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\passParamsRepeat.pkl'))
@@ -332,31 +335,42 @@ class netSelect():
         if self.labelname == "Network Number":
             myNet.myNetControl.netNo = int(self.value)
             myNet.myNetTEA.netNo = int(self.value)
+            print("net change")
         if self.labelname == "SCfrequency":
             myNet.myNetControl.FreqNo = int(self.value)
             myNet.myNetTEA.FreqNo = int(self.value)
-        print(self.value)
+            print("freq change")
 
         
         self.startNo = getNetIDX(myNet.myNetControl.netNo,myNet.myNetTEA.FreqNo)
         netParams = LV2PassParams[:,self.startNo:self.startNo+5]
         self.params, self.LCs = makeCellsLV3(netParams,"Control")
         
+        myNet.myNetControl.params = self.params
+        myNet.myNetControl.LCs = self.LCs
         myNet.myNetControl.ETs = ETs[self.startNo:self.startNo+5]
         myNet.myNetControl.vsAll = [h.VecStim() for i in range(0,subTrials)]
         myNet.myNetControl.syns = myNet.myNetControl.createSyns()
         myNet.myNetControl.setSyns()
         myNet.myNetControl.setEventTimes()
         myNet.myNetControl.NetCons = myNet.myNetControl.createNetCons()
+        myNet.myNetControl.g,myNet.myNetControl.gSIZ = myNet.myNetControl.createSomaGaps(),myNet.myNetControl.createSIZGaps()
+        myNet.myNetControl.v =  [h.Vector().record(myNet.myNetControl.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
+        #myNet.myNetControl.v =  [h.Vector().record(myNet.myNetControl.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
         myNet.controlPlot.fig.suptitle('%s - Network %d at %d Hz' %("Control",myNet.myNetControl.netNo, myNet.myNetControl.FreqNo))
         myNet.update()
   
+        myNet.myNetTEA.params = self.params
+        self.params, self.LCs = makeCellsLV3(netParams,"TEA")
+        myNet.myNetTEA.LCs = self.LCs
         myNet.myNetTEA.ETs = ETs[self.startNo:self.startNo+5]
         myNet.myNetTEA.vsAll = [h.VecStim() for i in range(0,subTrials)]
         myNet.myNetTEA.syns = myNet.myNetTEA.createSyns()
         myNet.myNetTEA.setSyns()
         myNet.myNetTEA.setEventTimes()
         myNet.myNetTEA.NetCons = myNet.myNetTEA.createNetCons()
+        myNet.myNetTEA.g,myNet.myNetTEA.gSIZ = myNet.myNetTEA.createSomaGaps(),myNet.myNetTEA.createSIZGaps()
+        myNet.myNetTEA.v =  [h.Vector().record(myNet.myNetTEA.LCs[i].soma(0.5)._ref_v) for i in range(0,subTrials)]
         myNet.TEAPlot.fig.suptitle('%s - Network %d at %d Hz' %("TEA",myNet.myNetTEA.netNo, myNet.myNetTEA.FreqNo))
         myNet.updateTEA()
         
