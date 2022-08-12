@@ -6,7 +6,9 @@ import pandas as pd
 import time
 from scipy.stats import kurtosis
 
-print('test') 
+os.chdir("..")
+os.chdir('CGResults')
+os.chdir("fixed_Gsyn")
+os.chdir("MedwithLV2")
 convertResultstoH5()
-
 plt.show()

@@ -79,7 +79,7 @@ NetCons = [h.NetCon(vsAll[i],syns[i],-10,0,synGains[i]) for i in range(0,Trials)
 LC1s,LC2s,LC3s,LC4s,LC5s = list(np.arange(0,Trials,5)),list(np.arange(1 ,Trials,5)),list(np.arange(2 ,Trials,5)),list(np.arange(3,Trials,5)),list(np.arange(4 ,Trials,5))
 
 RSOMA=1.54
-RSIZ=200
+RSIZ= 200
 g,gSIZ1,gSIZ2,gSIZ3,gSIZ4 = [],[],[],[],[]
 
 def setGapSoma(LCA,LCB,g):

@@ -15,14 +15,14 @@ import tracemalloc
 totalStart = time.time()
 
 seed = "32165156"
-LV1Trials = "1000"
+LV1Trials = "200"
 VoltageFilename= "Vsoma"
 ParamsFilename = "Params"
 numprocesses = '4'
 passParamsFileName = "passParams"
 passParamsFileNameRepeat = "passParamsRepeat"
 eventTimesFileName = "EventTimes"
-
+"""
 skipLV2 = 'n'#y to skip LV2 by using the dummy file. Note this will rerun LV1 and overwrite any previous LV2 results in the input/output folders
 
 if skipLV2 == 'y':
@@ -117,7 +117,7 @@ if skipLV2 == 'n':
 
     #get the passing parameters from LV2 and save
     params = np.array(pd.read_pickle(os.path.join("output","LV2",passParamsFileNameRepeat + "Control" + ".pkl")))
-    passingIdxs = np.where(Idxs ==1)
+    passingIdxs = getPassIdxs(coded,'LV2')
     passingParams = np.unique(params[:,passingIdxs[0]],axis=1)
     passParamsLV2 = pd.DataFrame(data = passingParams)
     passParamsLV2.to_pickle(os.path.join("output","LV2",passParamsFileName + ".pkl"))
@@ -128,8 +128,9 @@ if skipLV2 == 'y':
     passingParams = np.array(pd.read_pickle(os.path.join("output","LV2",passParamsFileNameRepeat+ "Control" + ".pkl")))
     passingParams  = np.unique(passingParams,axis=1)
 
-
-
+"""
+passingParams = np.array(pd.read_pickle(os.path.join("output","LV2",passParamsFileNameRepeat+ "Control" + ".pkl")))
+passingParams  = np.unique(passingParams,axis=1)
 # LV3: 
 # put the passing cells of LV2 into sets of 5. then repeat the params 16 times, give to LV3 code. LV3 code will connect all the sizs to each other in a network, and lc12 and lc45 then run.
 

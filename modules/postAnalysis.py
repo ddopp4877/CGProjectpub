@@ -8,7 +8,7 @@ from modules.makeParams import getNetIDX; sns.set_theme()
 from matplotlib.ticker import FuncFormatter
 
 import matplotlib
-matplotlib.use('Agg')# get some memory error with printing to pdf if this backend isn't used.
+#matplotlib.use('Agg')# get some memory error with printing to pdf if this backend isn't used.
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import stats
@@ -374,7 +374,7 @@ def format_tick_labels(x,y):
                 
 def plotDistributions(Params,paramsList,binSize,title = 'no title',xlabels='none',figuresize=(11,7)):
     
-    if type(xlabels) != 'list':
+    if type(xlabels) != list:
         xlabels=[xlabels]
     rowLen = 5
     title= title + '1e-4 S'

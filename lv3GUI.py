@@ -40,9 +40,9 @@ os.chdir("modFiles")
 os.system("nrnivmodl")
 os.chdir("..")
 
-#archivedPath = os.path.join("..","CGResults","fixed_Gsyn","MedwithLV2")
-eventTimes = np.array(pd.read_pickle(os.path.join("LV3","input",eventtimesfilename + ".pkl")))
-LV2PassParams =  np.array(pd.read_pickle(os.path.join("LV3","output", passparamsfilename+ ".pkl")))
+archivedPath = os.path.join("..","CGResults","fixed_Gsyn","MedwithLV2")
+eventTimes = np.array(pd.read_pickle(os.path.join("input","LV3",eventtimesfilename + ".pkl")))
+LV2PassParams =  np.array(pd.read_pickle(os.path.join("output","LV3", passparamsfilename+ ".pkl")))
 
 #eventTimes = np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\EventTimesControl.pkl'))
 #LV2PassParams =  np.array(pd.read_pickle(r'C:\Users\ddopp\source\repos\CGresults\fixed_Gsyn\Low\LV3\passParamsRepeat.pkl'))
