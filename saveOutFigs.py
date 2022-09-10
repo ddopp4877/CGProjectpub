@@ -9,7 +9,7 @@ endIDX = 100*16#20 per page so this is 16 pages
 
 archivedPath = os.path.join("..","CGresults","fixed_Gsyn","MedwithLV2")
 
-
+"""
 def readDat(f,endIDX):
     
     firstdatasetName = list(f.keys())[0]
@@ -30,24 +30,24 @@ def readDat(f,endIDX):
 
 archivedPath = os.path.join("..","CGresults","fixed_Gsyn","MedwithLV2")
 
-RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV2","LV2RejectionResults.txt"))[:,:endIDX]
-f = h5py.File(os.path.join(archivedPath,"LV2","VsomaControl.h5"), 'r')
+RejectionResults = np.loadtxt(os.path.join(archivedPath,"output","LV2","LV2RejectionResults.txt"))[:,:endIDX]
+f = h5py.File(os.path.join(archivedPath,"output","LV2","VsomaControl.h5"), 'r')
 Voltages = readDat(f,endIDX)
 printLV2Voltages(Voltages.T,RejectionResults,"LV2 Voltages - Control")
 
 
-f = h5py.File(os.path.join(archivedPath,"LV2","VsomaTEA.h5"), 'r')
+f = h5py.File(os.path.join(archivedPath,"output","LV2","VsomaTEA.h5"), 'r')
 Voltages = readDat(f,endIDX)
 printLV2Voltages(Voltages.T,RejectionResults,"LV2 Voltages - TEA")
 
 #don't forget to uncomment matplotlib.use('Agg') and matplotlib in postAnalysis if printing a large dataset
-
+"""
 
 #print all voltages to a pdf
-#archivedPath = os.path.join("..","CGresults","fixed_Gsyn","MedwithLV2")
-#RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV2","LV2RejectionResults.txt"))
-#Voltages = np.array(np.load(os.path.join(archivedPath,"LV2","VsomaControl.pkl.npy"))).T
-#printLV2Voltages(Voltages[:,:endIDX],RejectionResults[:,:endIDX],"LV2 Voltages - Control")
+archivedPath = os.path.join("..","CGresults","fixed_Gsyn","MedwithLV2")
+RejectionResults = np.loadtxt(os.path.join(archivedPath,"output","LV2","LV2RejectionResults.txt"))
+Voltages = np.array(np.load(os.path.join(archivedPath,"output","LV2","VsomaControl.pkl.npy"))).T
+printLV2Voltages(Voltages[:,:endIDX],RejectionResults[:,:endIDX],"LV2 Voltages - Control")
 
 #RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV2","LV2RejectionResults.txt"))
 #Voltages = np.array(np.load(os.path.join(archivedPath,"LV2","VsomaTEA.pkl.npy"))).T
