@@ -52,14 +52,15 @@ printLV2Voltages(Voltages[:,:endIDX],RejectionResults[:,:endIDX],"LV2 Voltages -
 #RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV2","LV2RejectionResults.txt"))
 #Voltages = np.array(np.load(os.path.join(archivedPath,"LV2","VsomaTEA.pkl.npy"))).T
 #printLV2Voltages(Voltages[:,:endIDX],RejectionResults[:,:endIDX],"LV2 Voltages - TEA")
-"""
-archivedPath = os.path.join("..","CGresults","fixed_Gsyn","MedwithLV2")
-#archivedPath = os.path.join("output")
-RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV3","LV3RejectionResults.txt"))
-Voltages = np.array(pd.read_pickle(os.path.join(archivedPath,"LV3","VSIZControl.pkl"))).T
-printNetVoltages(Voltages,RejectionResults,"LV3 Voltages - Control")
 
-RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV3","LV3RejectionResults.txt"))
-Voltages = np.array(pd.read_pickle(os.path.join(archivedPath,"LV3","VSIZTEA.pkl"))).T
-printNetVoltages(Voltages,RejectionResults,"LV3 Voltages - TEA")
+archivedPath = os.path.join("..","CGresults","fixed_Gsyn","MedwithLV2","output")
+#archivedPath = os.path.join("output")
 """
+RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV3","LV3RejectionResults.txt"))
+Voltages = np.array(pd.read_pickle(os.path.join(archivedPath,"LV3","VSomaControl.pkl"))).T
+printNetVoltages(Voltages,RejectionResults,"LV3 Voltages - Control")
+"""
+RejectionResults = np.loadtxt(os.path.join(archivedPath,"LV3","LV3RejectionResults.txt"))
+Voltages = np.array(pd.read_pickle(os.path.join(archivedPath,"LV3","VSomaTEA.pkl"))).T
+printNetVoltages(Voltages,RejectionResults,"LV3 Voltages - TEA")
+
